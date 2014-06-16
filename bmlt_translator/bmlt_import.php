@@ -1,8 +1,26 @@
 <?php
 /***********************************************************************/
-/**	\file	bmlt_import_functions.php
+/**	\file	bmlt_import.php
 
 	\brief  This file contains a range of functions to be used by BMLT database importing scripts. Including this file instantiates a BMLT root server.
+	
+	The way this works, is that you must first set up a root server (usually using the install wizard). Once this is done, you should set up all the
+	Service bodies. Note the IDs for each Service body, as you will be using these to map meetings to their Service bodies.
+	Make a backup (SQL) of this initial (empty) database. If there are problems with the import, you will need it to reset to the start.
+	You can use this script to add new meetings to an existing database. The rules are the same: Make a backup of your starting point.
+	Also, you should not run this script on a live database. Make sure the server is offline.
+	Remove this script when done. It is a highly dangerous script to leave in your directory, because it can be used to damage the database.
+	
+	This process will do a Google geocode lookup of the address if it is not given explicit longitude/latitude values for a meeting.
+	
+	The input file is a TSV or a CSV file. The first line is a header, and contains the file keys.
+	You need to modify the "bmlt_conversion_tables.php" to map the input file to the database.
+	
+	                    *** WARNING ***
+	
+	This is an extremely technical operation that should be done by the Webservant setting up the root server!
+	This file is dangerous, and can mess up your database if not done correctly!
+	It's qute possible that you will have to make several runs, as you tweak stuff, so BACK UP YOUR DATABASE!
 */
 ini_set ( 'auto_detect_line_endings', 1 );      // Always detect line endings.
 define ( '_DEFAULT_ROOT_DIR_', 'main_server' ); // The default names the main directory "main_server".
@@ -20,12 +38,20 @@ $g_root_dir = _DEFAULT_ROOT_DIR_;	// Assume we're in the directory above the mai
 // ...Unless told otherwise... (POST trumps GET)
 if ( isset ( $_POST['root_dir'] ) && trim ( $_POST['root_dir'] ) )
     {
-    $g_root_dir = trim ( $_POST['root_dir'] );	///< root_dir needs to be a relative POSIX path to the main_server directory.
+    $g_root_dir = trim ( $_POST['root_dir'] );	// root_dir needs to be a relative POSIX path to the executing script.
     }
 else if ( isset ( $_GET['root_dir'] ) && trim ( $_GET['root_dir'] ) )
     {
-    $g_root_dir = trim ( $_GET['root_dir'] );	///< root_dir needs to be a relative POSIX path to the main_server directory.
+    $g_root_dir = trim ( $_GET['root_dir'] );
     }
+else if ( bmlt_get_root_dir() )                 // See if the user has specified a root directory.
+    {
+    $g_root_dir = trim ( bmlt_get_root_dir() )
+    }
+
+$g_root_dir = trim ( $g_root_dir, "/" );    // Remove any trailing slash.
+
+$g_root_dir = dirname ( __FILE__ )."/".$g_root_dir; // Make it an absolute path.
 
 if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c_comdef_server.class.php" ) )
     {
@@ -1046,15 +1072,19 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         return $ret;
     }
 
-    $data = bmlt_get_delimited_file_contents ();
+/*
+############################################ MAIN CONTEXT ############################################
+*/
+
+    $data = bmlt_get_delimited_file_contents ();    // Read in the file.
 
     $ret = null;
 
-    if ( isset ( $data ) && is_array ( $data ) && count ( $data ) )
+    if ( isset ( $data ) && is_array ( $data ) && count ( $data ) ) // Make sure we got something.
         {
-        set_time_limit ( count ( $data ) * 2 );
+        set_time_limit ( count ( $data ) * 2 ); // Set a long time limit for this operation (could take some time).
         $meetings = array();
-        $templates = bmlt_fetch_templates ();
+        $templates = bmlt_fetch_templates ();   // Get the field templates from the server.
     
         if ( is_array ( $templates ) && count ( $templates ) )
             {
