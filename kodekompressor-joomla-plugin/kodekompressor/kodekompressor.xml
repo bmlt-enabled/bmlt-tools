@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install version="1.5" type="plugin" group="system">
+	<name>System - Kode Kompressor</name>
+	<authorUrl>www.magshare.org</authorUrl>
+	<version>1.0</version>
+	<description>Strips and compresses the XHTML stream from Joomla</description>
+	<files>
+		<filename plugin="kodekompressor">kodekompressor.php</filename>
+	</files>
+	<params/>
+</install>
