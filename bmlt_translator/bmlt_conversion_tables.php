@@ -82,19 +82,19 @@ function bmlt_get_field_conversion_table()
 */
 function bmlt_get_format_conversion_table()
 {
-//                                      These are the file values           These are corresponding values in the database
-//                                                                          NOTE: These are the codes/keys, and are for the server default language.
-    $conversion_formats_table = array ( 'O'                         =>      'O',    /* Open */
-                                        'C'                         =>      'C',    /* Closed */
-                                        'L'                         =>      'BK',   /* Book (Literature Study) */
-                                        'S'                         =>      'St',   /* Step */
-                                        'T'                         =>      'To',   /* Topic */
-                                        'CL'                        =>      'CL',   /* Candlelight */
-                                        'SM'                        =>      'Sm',   /* Smoking Permitted */
-                                        'SP'                        =>      'So',   /* Speaker Only */
-                                        'W'                         =>      'W',    /* Women Only */
-                                        'M'                         =>      'M',    /* Men Only */
-                                        'WC'                        =>      'WC'    /* Wheelchair-Accessible */
+//                                  These are the file values       These are corresponding values in the database
+//                                                                  NOTE: These are the codes/keys, and are for the server default language.
+    $conversion_formats_table = array ( 'O'                 =>      'O',    /* Open */
+                                        'C'                 =>      'C',    /* Closed */
+                                        'L'                 =>      'BK',   /* Book (Literature Study) */
+                                        'S'                 =>      'St',   /* Step */
+                                        'T'                 =>      'To',   /* Topic */
+                                        'CL'                =>      'CL',   /* Candlelight */
+                                        'SM'                =>      'Sm',   /* Smoking Permitted */
+                                        'SP'                =>      'So',   /* Speaker Only */
+                                        'W'                 =>      'W',    /* Women Only */
+                                        'M'                 =>      'M',    /* Men Only */
+                                        'WC'                =>      'WC'    /* Wheelchair-Accessible */
                                         );
     return $conversion_formats_table;
 }
