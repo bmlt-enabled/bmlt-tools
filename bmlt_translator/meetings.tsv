@@ -1,6 +1,6 @@
 service_body	meeting_name	weekday	start_time	duration	location_sub_province	location_info	location_name	location_street	location_municipality	location_province	location_postalcode_1	formats	comments
 2	No Turning Back Group	1	11:00:00	1:30:00	St Louis City		Islamic Center	1434 N Grand Blvd	St. Louis 	MO	63106	O	
-2	Women & Men Do Recover Group	1	15:00:00	1:30:00	St Louis City	Hall Entrance	North City Church of Christ	5050 Thekla Ave	St. Louis 	MO	63115	"O,WC"	
+2	Women & Men Do Recover Group	1	15:00:00	1:30:00	St Louis City	Hall Entrance	North City Church of Christ	5050 Thekla Ave	St. Louis 	MO	63115	"O,WC"	"These are \"comments\" about this meeting, and note the escaped double-quotes."
 3	Spiritual Connection Group	1	10:30:00	1:30:00	St Charles		Bridgeway Counseling Service	1570 S Main St	St. Charles 	MO	63303	"O,WC"	
 3	Crossdoads Connection Group	1	16:30:00	1:00:00	St Charles		Progress West Medical Plaza	2630 Hwy K	O'Fallon 	MO	63368	"O,WC"	
 4	"It Works, How and Why Group"	1	10:30:00	1:00:00	Madison		Community Counseling Center	2615 Edwards St	Alton 	IL	62022	"O,WC"	
