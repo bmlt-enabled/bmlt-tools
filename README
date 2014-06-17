@@ -1,0 +1,27 @@
+DESCRIPTION
+-----------
+
+The Basic Meeting List Toolbox (BMLT, hereafter) is a very powerful client/server system
+that has been written for a very specific purpose, for a very specific clientele.
+
+It is designed to track and locate Narcotics Anonymous meetings, which are regularly-
+scheduled weekly, recurring events.
+
+The intended clientele is Narcotics Anonymous Service bodies. They implement a BMLT
+server, and provide the server to other NA Service bodies.
+
+You can find out way too much about the BMLT here: http://bmlt.magshare.net
+
+You can follow us on Twitter for release announcements: http://twitter.com/BMLT_NA
+
+This is a set of scripts and tools that we make available for messing with the BMLT.
+
+CAVEAT EMPTOR. These scripts are dangerous, which is exactly why we don't release them
+as general use scripts.
+
+CHANGELIST
+----------
+
+= bmlt_translator Version 1.0.0
+    * June 16, 2014
+    * Initial Release

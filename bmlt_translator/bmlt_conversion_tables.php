@@ -2,6 +2,8 @@
 /***********************************************************************/
 /**	\file	bmlt_conversion_tables.php
 
+    \version 1.0.0
+
 	\brief  This is the file that should be adjusted for individual imports.
 	
 	This is an example file that is meant to work with the given input files.

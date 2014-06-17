@@ -2,6 +2,8 @@
 /***********************************************************************/
 /**	\file	bmlt_import.php
 
+    \version 1.0.0
+
 	\brief  This file contains a range of functions to be used by BMLT database importing scripts. Including this file instantiates a BMLT root server.
 	
 	The way this works, is that you must first set up a root server (usually using the install wizard). Once this is done, you should set up all the
@@ -16,17 +18,35 @@
 	The input file is a TSV or a CSV file. The first line is a header, and contains the file keys.
 	You need to modify the "bmlt_conversion_tables.php" to map the input file to the database.
 	
+	When you call this file, you can specify the name of the input file, as a relative (to this script) POSIX path, using the argument 'filename='.
+	Example: /bmlt_import?filename=%2F..%2F..%2Fmeetings.csv
+	This will override whatever is in the bmlt_conversion_tables.php file.
+	
+	You can also specify a root directory, also as a relative POSIX file:
+	Example: /bmlt_import?root_dir=%2F..%2Fmain_server
+	This will override whatever is in the bmlt_conversion_tables.php file.
+	
 	                    *** WARNING ***
 	
 	This is an extremely technical operation that should be done by the Webservant setting up the root server!
 	This file is dangerous, and can mess up your database if not done correctly!
 	It's qute possible that you will have to make several runs, as you tweak stuff, so BACK UP YOUR DATABASE!
 */
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>BMLT IMPORT SCRIPT</title>
+</head>
+<body><?php
 ini_set ( 'auto_detect_line_endings', 1 );      // Always detect line endings.
 define ( '_DEFAULT_ROOT_DIR_', 'main_server' ); // The default names the main directory "main_server".
 
 global $gDays, $g_main_keys, $g_root_dir, $g_server;
     
+require_once ( dirname ( __FILE__ )."/bmlt_conversion_tables.php" );    // Import our transfer-specific data maps.
+
 // This is an array of keys that go into the _main table. The rest go into the _data and _longdata tables. All are set to 1, because the values don't matter.
 $g_main_keys = array ( 'id_bigint' => 1, 'worldid_mixed' => 1, 'shared_group_id_bigint' => 1, 'service_body_bigint' => 1, 'weekday_tinyint' => 1, 'start_time' => 1, 'duration_time' => 1, 'formats' => 1, 'lang_enum' => 1, 'longitude' => 1, 'latitude' => 1, 'published' => 1, 'email_contact' => 1 );
 
@@ -46,7 +66,7 @@ else if ( isset ( $_GET['root_dir'] ) && trim ( $_GET['root_dir'] ) )
     }
 else if ( bmlt_get_root_dir() )                 // See if the user has specified a root directory.
     {
-    $g_root_dir = trim ( bmlt_get_root_dir() )
+    $g_root_dir = trim ( bmlt_get_root_dir() );
     }
 
 $g_root_dir = trim ( $g_root_dir, "/" );    // Remove any trailing slash.
@@ -66,22 +86,32 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         die ( 'Cannot instantiate the root server!' );
         }
 
-    require_once ( dirname ( __FILE__ )."/bmlt_conversion_tables.php" );
-
     /***********************************************************************/
     /**
         \brief Opens a tab- or comma-delimited file, and loads it into an associative array.
         \returns an associative array with the file contents.
     */
-    function bmlt_get_delimited_file_contents ( $in_default_filename = null ///< The default filename
+    function bmlt_get_delimited_file_contents ( $in_default_filename = null,    ///< The default filename
+                                                $in_lang_enum = 'en'            ///< The language enum for the meetings
                                                 )
     {
+        $ret = null;
+        $display = "";
+        $count = 1;
+        
+        if ( isset ( $_POST['filename'] ) )
+            {
+            $in_default_filename = $_POST['filename'];
+            }
+        elseif ( isset ( $_GET['filename'] ) )
+            {
+            $in_default_filename = $_GET['filename'];
+            }
+        
         if ( !$in_default_filename )
             {
             $in_default_filename = bmlt_get_filename();
             }
-    
-        $ret = null;
     
         if ( !file_exists ( $in_default_filename ) )
             {
@@ -105,6 +135,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         if ( file_exists ( $file ) )
             {
             $keys = null;
+            echo ( "<pre>Opening $file, which is a " );
             $file_handle = fopen ( $file, "r" );
         
             if ( $file_handle )
@@ -117,11 +148,18 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             
                 if ( !is_array ( $key_line ) || !(count ( $key_line ) > 2) )
                     {
+                    echo ( "tab" );
                     $delimiter = "\t";
                     rewind ( $file_handle );
                     $key_line = fgetcsv ( $file_handle, null, $delimiter );
                     }
-
+                else
+                    {
+                    echo ( "comma" );
+                    }
+                
+                echo ( '-delimited file.</pre>' );
+                
                 while ( ( $data = fgetcsv ( $file_handle, null, $delimiter ) ) !== FALSE )
                     {
                     $data = array_combine ( $key_line, $data );
@@ -145,8 +183,17 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                     {
                                     $default_value = $default_value ( $value );
                                     }
-                        
+                                
+                                if ( isset ( $new_key ) && $new_key && $value )
+                                    {
+                                    $display .= "\t\tReading $new_key ($key) as the default value, which is '$default_value'\n";
+                                    }
+                                
                                 $value = $default_value;
+                                }
+                            elseif ( isset ( $new_key ) && $new_key && $value )
+                                {
+                                $display .= "\t\tReading $new_key ($key) as '$value'\n";
                                 }
 
                             if ( isset ( $new_key ) && $new_key && $value )
@@ -155,8 +202,19 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                 }
                             }
                         }
-                
+                    
+                    if ( !isset ( $new_data['lang_enum'] ) || !$new_data['lang_enum'] )
+                        {
+                        $new_data['lang_enum'] = $in_lang_enum;
+                        $display .= "\t\tSetting the meeting 'lang_enum' to '$in_lang_enum'.\n";
+                        }
+                    
+                    $new_data['published'] = 1;
+
                     array_push ( $ret, $new_data );
+                    
+                    echo ( "<pre>\tMeeting $count:\n".$display.'</pre>' );
+                    $count++;
                     }
             
                 fclose ( $file_handle );
@@ -317,7 +375,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 // OK. We have now created the basic meeting info, and we have the ID necessary to create the key/value pairs for the data tables.
                 // In 99% of the cases, we will only fill the _data table. However, we should check for long data, in case we need to use the _longdata table.
                 $data_values = null;
-                $londata_values = null;
+                $longdata_values = null;
                 
                 // Here, we simply extract the parts of the array that correspond to the data and longdata tables.
                 if ( isset ( $in_templates_array['data'] ) && is_array ( $in_templates_array['data'] ) && count ( $in_templates_array['data'] ) )
@@ -327,7 +385,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 
                 if ( isset ( $in_templates_array['longdata'] ) && is_array ( $in_templates_array['longdata'] ) && count ( $in_templates_array['longdata'] ) )
                     {
-                    $londata_values = array_intersect_key ( $in_out_meeting_array, $in_templates_array['longdata'] );
+                    $longdata_values = array_intersect_key ( $in_out_meeting_array, $in_templates_array['longdata'] );
                     }
                 
                 // What we do here, is expand each of the input key/value pairs to have the characteristics assigned by the template for that key.
@@ -368,9 +426,9 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         }
                     }
                 
-                if ( is_array ( $londata_values ) && count ( $londata_values ) )
+                if ( is_array ( $longdata_values ) && count ( $longdata_values ) )
                     {
-                    foreach ( $londata_values as $key => &$londata_value )
+                    foreach ( $longdata_values as $key => &$londata_value )
                         {
                         $val = $data_value; // We replace a single value with an associative array, so save the value.
                         if ( isset ( $val ) )
@@ -436,9 +494,9 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                     }
                 
                 // Next, we do the longdata array.
-                if ( isset ( $londata_values ) && is_array ( $londata_values ) && count ( $londata_values ) )
+                if ( isset ( $longdata_values ) && is_array ( $longdata_values ) && count ( $longdata_values ) )
                     {
-                    foreach ( $londata_values as $value )
+                    foreach ( $longdata_values as $value )
                         {
                         if ( isset ( $value ) && is_array ( $value ) && count ( $value ) )
                             {
@@ -1001,15 +1059,13 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
 
         \returns an associative array, in BMLT-ready format, of the meeting data.
     */
-    function bmlt_convert_one_meeting (  $in_one_meeting ///< The meeting, in the source format. An associative array.
+    function bmlt_convert_one_meeting (  $in_one_meeting,   ///< The meeting, in the source format. An associative array.
+                                         $in_count          ///< The index of this meeting.
                                         )
     {
+        echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;text-align:center\" colspan=\"3\">Converting meeting $in_count</td></tr>" );
         $ret = null;
     
-        $ret['duration'] = '1:00:00';
-        $ret['lang_enum'] = 'en';
-        $ret['published'] = 1;
-
         // We cycle through all the meeting data, and extract that which can be mapped to BMLT context.
         
         foreach ( $in_one_meeting as $key => $value )
@@ -1026,6 +1082,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         if ( !isset ( $in_one_meeting['longitude'] ) ||  !isset ( $in_one_meeting['latitude'] ) )
             {
             $address_string = bmlt_build_address ( $in_one_meeting );
+            echo ( "<tr><td>&nbsp;</td><td colspan=\"2\">This meeting does not have a long/lat, so we are geocoding '$address_string'.</td></tr>" );
     
             if ( $address_string )
                 {
@@ -1069,14 +1126,29 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 usleep ( 500000 );  // This prevents Google from summarily ejecting us as abusers.
                 }
             }
+        
+        echo ( '<tr>' );
+        echo ( '<td style="width:1em;border-bottom:2px solid black">&nbsp;</td>' );
+        echo ( '<td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td>' );
+        echo ( '<td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td>' );
+        echo ( '</tr>' );
+        echo ( '<tr>' );
+        echo ( '<td>&nbsp;</td>' );
+        echo ( '<td style="vertical-align:top">' );
+        echo ( '<pre>'.htmlspecialchars ( print_r ( $in_one_meeting, true ) ).'</pre>' );
+        echo ( '</td>' );
+        echo ( '<td style="vertical-align:top">' );
+        echo ( '<pre>'.htmlspecialchars ( print_r ( $ret, true ) ).'</pre>' );
+        echo ( '</td>' );
+        echo ( '</tr>' );
+        
         return $ret;
     }
+    
+/* ############################################ MAIN CONTEXT ############################################ */
 
-/*
-############################################ MAIN CONTEXT ############################################
-*/
-
-    $data = bmlt_get_delimited_file_contents ();    // Read in the file.
+    echo ( "<pre>Starting Import of meetings.</pre>" );
+    $data = bmlt_get_delimited_file_contents ( null, $g_server->GetLocalLang() );    // Read in the file.
 
     $ret = null;
 
@@ -1088,31 +1160,34 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     
         if ( is_array ( $templates ) && count ( $templates ) )
             {
+            echo ( '<pre>Converting the meetings to BMLT format.</pre>' );
+            echo ( '<table cellpadding="0" cellspacing="0" border="0" style="border:none">' );
+            $count = 1;
             foreach ( $data as $meeting )
                 {
-                $meeting = bmlt_convert_one_meeting ( $meeting );
+                $meeting = bmlt_convert_one_meeting ( $meeting, $count );
 
                 if ( is_array ( $meeting ) && count ( $meeting ) )
                     {
-                    bmlt_add_meeting_to_database ( $meeting, $templates );
+                    $ret .= bmlt_add_meeting_to_database ( $meeting, $templates )."\n";
                     }
                 else
                     {
-                    $ret .= 'Mssing Meeting!';
+                    echo ( 'Mssing Meeting!' );
                     }
+                
+                $count++;
                 }
             }
         else
             {
-            $ret = 'No templates!';
+            echo ( 'No templates!' );
             }
         }
     else
         {
-        $ret = 'No Meetings!';
+        echo ( 'No Meetings!' );
         }
-
-    echo $ret;
     }
 else
     {
@@ -1125,4 +1200,5 @@ else
         die ( 'No Root Dir Specified!' );
         }
     }
-?>
+?></body>
+</html>
