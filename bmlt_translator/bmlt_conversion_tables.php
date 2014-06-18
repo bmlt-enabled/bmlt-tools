@@ -35,16 +35,6 @@ function bmlt_get_root_dir()
 }
 
 /***********************************************************************/
-/**	\brief  Returns a region bias for the Google geocode lookup.
-                  
-    \returns a simple string, containing the region bias. It can be NULL (which Google interprets as "us").
-*/
-function bmlt_get_region_bias()
-{
-    return NULL;
-}
-
-/***********************************************************************/
 /**	\brief  This function returns a map, associating fields in the CSV/TSV file to the database names.
                   
     \returns an associative array, containing the map.

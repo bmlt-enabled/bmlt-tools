@@ -44,6 +44,7 @@ ini_set ( 'auto_detect_line_endings', 1 );      // Always detect line endings.
 define ( '_DEFAULT_ROOT_DIR_', 'main_server' ); // The default names the main directory "main_server".
 
 global $gDays, $g_main_keys, $g_root_dir, $g_server;
+global $region_bias;
     
 require_once ( dirname ( __FILE__ )."/bmlt_conversion_tables.php" );    // Import our transfer-specific data maps.
 
@@ -77,7 +78,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     {
     define ( 'BMLT_EXEC', true );	// This is a security verifier. Keeps files from being executed outside of the context
     require_once ( "$g_root_dir/server/c_comdef_server.class.php" );
-        
+
     // We actually instantiate a root server, here.
     $g_server = c_comdef_server::MakeServer();
     
@@ -86,6 +87,10 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         die ( 'Cannot instantiate the root server!' );
         }
 
+    $local_strings = $g_server->GetLocalStrings();
+    
+    $region_bias = $local_strings['region_bias'];
+    
     /***********************************************************************/
     /**
         \brief Opens a tab- or comma-delimited file, and loads it into an associative array.
@@ -98,6 +103,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         $ret = null;
         $display = "";
         $count = 1;
+        $file = '';
         
         if ( isset ( $_POST['filename'] ) )
             {
@@ -131,6 +137,8 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             {
             $file = $in_default_filename;
             }
+        
+        $file = dirname ( __FILE__ ).'/'.trim ( $file, '/' );
         
         if ( file_exists ( $file ) )
             {
@@ -210,7 +218,11 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         $display .= "\t\tSetting the meeting 'lang_enum' to '$in_lang_enum'.\n";
                         }
                     
-                    $new_data['published'] = 1;
+                    if ( !isset ( $new_data['published'] ) )
+                        {
+                        $display .= "\t\tMarking this meeting as published (Will be displayed immediately).";
+                        $new_data['published'] = 1;
+                        }
 
                     array_push ( $ret, $new_data );
                     
@@ -288,16 +300,17 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 - 'original'
                     The original address string
     */
-    function bmlt_geocode (	$in_address,	///< The address, in a single string, to be sent to the geocoder.
-                            $in_region=null	///< If there is a nation region bias, it is entered here.
+    function bmlt_geocode (	$in_address 	///< The address, in a single string, to be sent to the geocoder.
                             )
     {
+        global $region_bias;
+        
         $ret = null;
         $status = null;
         $uri = 'http://maps.googleapis.com/maps/api/geocode/xml?address='.urlencode ( $in_address ).'&sensor=false';
-        if ( $in_region )
+        if ( $region_bias )
             {
-            $uri .= '&region='.strtolower(trim($in_region));
+            $uri .= '&region='.strtolower(trim($region_bias));
             }
 
         $xml = simplexml_load_file ( $uri );
@@ -1068,6 +1081,8 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                          $in_count          ///< The index of this meeting.
                                         )
     {
+        global $region_bias;
+        
         echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;text-align:center\" colspan=\"3\">Converting meeting $in_count</td></tr>" );
         $ret = null;
     
@@ -1093,7 +1108,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 {
                 $region_bias = bmlt_get_region_bias();
         
-                $geocoded_result = bmlt_geocode ( $address_string, $region_bias );
+                $geocoded_result = bmlt_geocode ( $address_string );
                 
                 if ( $geocoded_result )
                     {
