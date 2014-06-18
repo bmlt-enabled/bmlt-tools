@@ -1,3 +1,25 @@
+-- phpMyAdmin SQL Dump
+-- version 4.0.6
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Jun 18, 2014 at 06:42 AM
+-- Server version: 5.5.33
+-- PHP Version: 5.5.3
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Database: `magshare_showm`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -5,7 +27,7 @@
 --
 
 DROP TABLE IF EXISTS `na_comdef_changes`;
-CREATE TABLE `na_comdef_changes` (
+CREATE TABLE IF NOT EXISTS `na_comdef_changes` (
   `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id_bigint` bigint(20) unsigned NOT NULL,
   `service_body_id_bigint` bigint(20) unsigned NOT NULL,
@@ -34,6 +56,11 @@ CREATE TABLE `na_comdef_changes` (
   KEY `object_class_string` (`object_class_string`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
+--
+-- Truncate table before insert `na_comdef_changes`
+--
+
+TRUNCATE TABLE `na_comdef_changes`;
 -- --------------------------------------------------------
 
 --
@@ -41,7 +68,7 @@ CREATE TABLE `na_comdef_changes` (
 --
 
 DROP TABLE IF EXISTS `na_comdef_formats`;
-CREATE TABLE `na_comdef_formats` (
+CREATE TABLE IF NOT EXISTS `na_comdef_formats` (
   `shared_id_bigint` bigint(20) unsigned NOT NULL,
   `key_string` varchar(255) DEFAULT NULL,
   `icon_blob` longblob,
@@ -57,6 +84,11 @@ CREATE TABLE `na_comdef_formats` (
   KEY `key_string` (`key_string`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Truncate table before insert `na_comdef_formats`
+--
+
+TRUNCATE TABLE `na_comdef_formats`;
 --
 -- Dumping data for table `na_comdef_formats`
 --
@@ -207,7 +239,7 @@ INSERT INTO `na_comdef_formats` (`shared_id_bigint`, `key_string`, `icon_blob`, 
 --
 
 DROP TABLE IF EXISTS `na_comdef_meetings_data`;
-CREATE TABLE `na_comdef_meetings_data` (
+CREATE TABLE IF NOT EXISTS `na_comdef_meetings_data` (
   `meetingid_bigint` bigint(20) unsigned NOT NULL,
   `key` varchar(32) NOT NULL,
   `field_prompt` tinytext,
@@ -224,6 +256,11 @@ CREATE TABLE `na_comdef_meetings_data` (
   KEY `visibility` (`visibility`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Truncate table before insert `na_comdef_meetings_data`
+--
+
+TRUNCATE TABLE `na_comdef_meetings_data`;
 --
 -- Dumping data for table `na_comdef_meetings_data`
 --
@@ -257,7 +294,7 @@ INSERT INTO `na_comdef_meetings_data` (`meetingid_bigint`, `key`, `field_prompt`
 --
 
 DROP TABLE IF EXISTS `na_comdef_meetings_longdata`;
-CREATE TABLE `na_comdef_meetings_longdata` (
+CREATE TABLE IF NOT EXISTS `na_comdef_meetings_longdata` (
   `meetingid_bigint` bigint(20) unsigned NOT NULL,
   `key` varchar(32) NOT NULL,
   `field_prompt` varchar(255) DEFAULT NULL,
@@ -272,6 +309,11 @@ CREATE TABLE `na_comdef_meetings_longdata` (
   KEY `visibility` (`visibility`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Truncate table before insert `na_comdef_meetings_longdata`
+--
+
+TRUNCATE TABLE `na_comdef_meetings_longdata`;
 -- --------------------------------------------------------
 
 --
@@ -279,7 +321,7 @@ CREATE TABLE `na_comdef_meetings_longdata` (
 --
 
 DROP TABLE IF EXISTS `na_comdef_meetings_main`;
-CREATE TABLE `na_comdef_meetings_main` (
+CREATE TABLE IF NOT EXISTS `na_comdef_meetings_main` (
   `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `worldid_mixed` varchar(255) DEFAULT NULL,
   `shared_group_id_bigint` bigint(20) DEFAULT NULL,
@@ -308,6 +350,11 @@ CREATE TABLE `na_comdef_meetings_main` (
   KEY `email_contact` (`email_contact`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
+--
+-- Truncate table before insert `na_comdef_meetings_main`
+--
+
+TRUNCATE TABLE `na_comdef_meetings_main`;
 -- --------------------------------------------------------
 
 --
@@ -315,7 +362,7 @@ CREATE TABLE `na_comdef_meetings_main` (
 --
 
 DROP TABLE IF EXISTS `na_comdef_service_bodies`;
-CREATE TABLE `na_comdef_service_bodies` (
+CREATE TABLE IF NOT EXISTS `na_comdef_service_bodies` (
   `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name_string` tinytext NOT NULL,
   `description_string` text NOT NULL,
@@ -343,6 +390,11 @@ CREATE TABLE `na_comdef_service_bodies` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=21 ;
 
 --
+-- Truncate table before insert `na_comdef_service_bodies`
+--
+
+TRUNCATE TABLE `na_comdef_service_bodies`;
+--
 -- Dumping data for table `na_comdef_service_bodies`
 --
 
@@ -368,7 +420,7 @@ INSERT INTO `na_comdef_service_bodies` (`id_bigint`, `name_string`, `description
 --
 
 DROP TABLE IF EXISTS `na_comdef_users`;
-CREATE TABLE `na_comdef_users` (
+CREATE TABLE IF NOT EXISTS `na_comdef_users` (
   `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_level_tinyint` tinyint(4) unsigned NOT NULL DEFAULT '0',
   `name_string` tinytext NOT NULL,
@@ -387,21 +439,30 @@ CREATE TABLE `na_comdef_users` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
 
 --
+-- Truncate table before insert `na_comdef_users`
+--
+
+TRUNCATE TABLE `na_comdef_users`;
+--
 -- Dumping data for table `na_comdef_users`
 --
 
 INSERT INTO `na_comdef_users` (`id_bigint`, `user_level_tinyint`, `name_string`, `description_string`, `email_address_string`, `login_string`, `password_string`, `last_access_datetime`, `lang_enum`) VALUES
-(1, 1, 'Server Administrator', 'Main Server Administrator', '', 'godadmin', '145lWTl06f3UY', '0000-00-00 00:00:00', 'en'),
-(2, 2, 'Show Me Regional Administrator', '', '', 'rsc-admin', '$1$PVccFiB6$BM8CTewFllFB1gt97wN5l.', '1969-12-31 19:32:49', 'en'),
-(3, 2, 'St. Louis Area Admin', '', '', 'stl-admin', '$1$dxdCjkxI$y4RwujHzc5.WTTgDAgNnl0', '1969-12-31 19:32:49', 'en'),
-(4, 2, 'St. Charles Area Admin', '', '', 'stc-admin', '$1$Pcje.kAb$JYQVLIkhNvt1WvpEfAuRi1', '1969-12-31 19:32:49', 'en'),
-(5, 2, 'Metro East Area Admin', '', '', 'metro-admin', '$1$zWlazcZX$pa1TWRCYicwvJ/PKe1dRq1', '1969-12-31 19:32:49', 'en'),
-(6, 2, 'Mid-East Missouri Area Admin', '', '', 'mem-admin', '$1$R17DwFbo$SxKXrsylhIsdMVGT.utPe1', '1969-12-31 19:32:49', 'en'),
-(7, 2, 'United Kansas City Area Admin', '', '', 'ukc-admin', '$1$q.1x/46c$zGSRPpOJyXajk6fiGiY4T1', '1969-12-31 19:00:00', 'en'),
-(8, 2, 'Heartland Area Admin', '', '', 'heart-admin', '$1$j9VO8kbN$v6W0l9N6W40X3hKK8fOCd0', '1969-12-31 19:00:00', 'en'),
-(9, 2, 'Northland Area Admin', '', '', 'northland-admin', '$1$buMAPa6t$zgUw.K7U3AFE4l5Qzfri21', '1969-12-31 19:00:00', 'en'),
-(10, 2, 'West-Central Missouri Area Admin', '', '', 'wcm-admin', '$1$4bhhH7oG$PicOXXugtXni02S03wYyk.', '1969-12-31 19:32:49', 'en'),
-(11, 2, 'Southwest Area Admin', '', '', 'sw-admin', '$1$acorrlzZ$4oiHU9nT1JROvXR/.ZfWp.', '1969-12-31 19:00:00', 'en'),
-(12, 2, 'Mid-Missouri Area Admin', '', '', 'mm-admin', '$1$DO/41byl$rGCmti6FagDD/a5b9ucTG0', '1969-12-31 19:00:00', 'en'),
-(13, 2, 'Primary Purpose Area Admin', '', '', 'pp-admin', '$1$MvRIWHOd$L9pcZlvBFK5VrbJFb0waQ.', '1969-12-31 19:00:00', 'en'),
-(14, 2, 'Ozark Area Admin', '', '', 'ozark-admin', '$1$962GodlM$q7tTCEVVNHJev6rYJdLhW.', '1969-12-31 19:00:00', 'en');
+(1, 1, 'Server Administrator', '', '', 'serveradmin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1999-11-30 00:00:00', 'en'),
+(2, 2, 'Show Me Regional Administrator', '', '', 'rsc-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(3, 2, 'St. Louis Area Admin', '', '', 'stl-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(4, 2, 'St. Charles Area Admin', '', '', 'stc-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(5, 2, 'Metro East Area Admin', '', '', 'metro-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(6, 2, 'Mid-East Missouri Area Admin', '', '', 'mem-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(7, 2, 'United Kansas City Area Admin', '', '', 'ukc-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(8, 2, 'Heartland Area Admin', '', '', 'heart-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(9, 2, 'Northland Area Admin', '', '', 'northland-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(10, 2, 'West-Central Missouri Area Admin', '', '', 'wcm-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(11, 2, 'Southwest Area Admin', '', '', 'sw-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(12, 2, 'Mid-Missouri Area Admin', '', '', 'mm-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(13, 2, 'Primary Purpose Area Admin', '', '', 'pp-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
+(14, 2, 'Ozark Area Admin', '', '', 'ozark-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en');
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

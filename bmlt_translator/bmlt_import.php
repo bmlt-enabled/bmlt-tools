@@ -2,7 +2,7 @@
 /***********************************************************************/
 /**	\file	bmlt_import.php
 
-    \version 1.0.0
+    \version 1.0.1
 
 	\brief  This file contains a range of functions to be used by BMLT database importing scripts. Including this file instantiates a BMLT root server.
 	
@@ -162,6 +162,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 
                 while ( ( $data = fgetcsv ( $file_handle, null, $delimiter ) ) !== FALSE )
                     {
+                    $display = '';
                     $data = array_combine ( $key_line, $data );
                     $new_data = array();
                 
@@ -231,8 +232,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                         )
     {
         $ret = array();
-        
-        $ret['formatted_address'] = $inResult->formatted_address->__toString();
+        echo ( "<tr><td>&nbsp;</td><td colspan=\"2\">Parsed '".$inResult->formatted_address->__toString()."'.</td></tr>" );
         $ret['longitude'] = $inResult->geometry->location->lng->__toString();
         $ret['latitude'] = $inResult->geometry->location->lat->__toString();
         
@@ -1118,15 +1118,13 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                     $ret['location_nation'] = $geocoded_result['result']['location_nation'];
                     }
                 
-                if ( array_key_exists ( 'formatted_address', $geocoded_result['result'] ) )
-                    {
-                    $ret['formatted_address'] = $geocoded_result['result']['formatted_address'];
-                    }
-                    
                 usleep ( 500000 );  // This prevents Google from summarily ejecting us as abusers.
                 }
             }
-        
+        else
+            {
+            echo ( "<tr><td>&nbsp;</td><td colspan=\"2\">This already has a long/lat. No need to geocode</td></tr>" );
+            }
         echo ( '<tr>' );
         echo ( '<td style="width:1em;border-bottom:2px solid black">&nbsp;</td>' );
         echo ( '<td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td>' );
