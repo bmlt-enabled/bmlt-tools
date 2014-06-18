@@ -236,6 +236,11 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         $ret['longitude'] = $inResult->geometry->location->lng->__toString();
         $ret['latitude'] = $inResult->geometry->location->lat->__toString();
         
+        if ( isset ( $inResult->partial_match ) && $inResult->partial_match->__toString() )
+            {
+            $ret['partial_geocode'] = TRUE;
+            }
+            
         foreach ( $inResult->address_component as $address_info )
             {
             $type = $address_info->type;
@@ -287,7 +292,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                             $in_region=null	///< If there is a nation region bias, it is entered here.
                             )
     {
-        $ret = array ( 'original' => $in_address );
+        $ret = null;
         $status = null;
         $uri = 'http://maps.googleapis.com/maps/api/geocode/xml?address='.urlencode ( $in_address ).'&sensor=false';
         if ( $in_region )
@@ -301,7 +306,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             {
             if ( $xml->status == 'OK' )
                 {
-                $ret['result'] = bmlt_parse_gecode_result ( $xml->result );
+                $ret = array ( 'original' => $in_address, 'result' => bmlt_parse_gecode_result ( $xml->result ) );
                 $retry = false;
                 }
             elseif ( $xml->status == 'OVER_QUERY_LIMIT' )
@@ -1089,36 +1094,51 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 $region_bias = bmlt_get_region_bias();
         
                 $geocoded_result = bmlt_geocode ( $address_string, $region_bias );
-            
-                $ret['longitude'] = $geocoded_result['result']['longitude'];
-                $ret['latitude'] = $geocoded_result['result']['latitude'];
                 
-                if ( array_key_exists ( 'location_postal_code_1', $geocoded_result['result']) )
+                if ( $geocoded_result )
                     {
-                    $ret['location_postal_code_1'] = $geocoded_result['result']['location_postal_code_1'];
-                    }
+                    if ( isset ( $geocoded_result['result']['partial_geocode'] ) )
+                        {
+                        echo ( "<tr><td>&nbsp;</td><td colspan=\"2\" style=\"font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr>" );
+                        }
+                    $ret['longitude'] = $geocoded_result['result']['longitude'];
+                    $ret['latitude'] = $geocoded_result['result']['latitude'];
                 
-                if ( array_key_exists ( 'location_neighborhood', $geocoded_result['result'] ) )
+                    if ( array_key_exists ( 'location_postal_code_1', $geocoded_result['result']) )
+                        {
+                        $ret['location_postal_code_1'] = $geocoded_result['result']['location_postal_code_1'];
+                        }
+                
+                    if ( array_key_exists ( 'location_neighborhood', $geocoded_result['result'] ) )
+                        {
+                        $ret['location_neighborhood'] = $geocoded_result['result']['location_neighborhood'];
+                        }
+                
+                    if ( array_key_exists ( 'location_sub_province', $geocoded_result['result'] ) )
+                        {
+                        $ret['location_sub_province'] = $geocoded_result['result']['location_sub_province'];
+                        }
+                
+                    if ( array_key_exists ( 'location_province', $geocoded_result['result'] ) )
+                        {
+                        $ret['location_province'] = $geocoded_result['result']['location_province'];
+                        }
+                
+                    if ( array_key_exists ( 'location_nation', $geocoded_result['result'] ) )
+                        {
+                        $ret['location_nation'] = $geocoded_result['result']['location_nation'];
+                        }
+                
+                    usleep ( 500000 );  // This prevents Google from summarily ejecting us as abusers.
+                    }
+                else
                     {
-                    $ret['location_neighborhood'] = $geocoded_result['result']['location_neighborhood'];
+                    echo ( "<tr><td>&nbsp;</td><td colspan=\"2\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE!</td></tr>" );
                     }
-                
-                if ( array_key_exists ( 'location_sub_province', $geocoded_result['result'] ) )
-                    {
-                    $ret['location_sub_province'] = $geocoded_result['result']['location_sub_province'];
-                    }
-                
-                if ( array_key_exists ( 'location_province', $geocoded_result['result'] ) )
-                    {
-                    $ret['location_province'] = $geocoded_result['result']['location_province'];
-                    }
-                
-                if ( array_key_exists ( 'location_nation', $geocoded_result['result'] ) )
-                    {
-                    $ret['location_nation'] = $geocoded_result['result']['location_nation'];
-                    }
-                
-                usleep ( 500000 );  // This prevents Google from summarily ejecting us as abusers.
+                }
+            else
+                {
+                echo ( "<tr><td>&nbsp;</td><td colspan=\"2\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE!</td></tr>" );
                 }
             }
         else

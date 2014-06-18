@@ -111,13 +111,9 @@
 		Reading weekday_tinyint (weekday) as '2'
 		Reading start_time (start_time) as '19:00:00'
 		Reading duration (duration) as '1:00:00'
-		Reading location_sub_province (location_sub_province) as 'Jefferson'
-		Reading location_info (location_info) as 'Entrance on North 2nd'
-		Reading location_text (location_name) as 'First Presbyterian Church'
-		Reading location_street (location_street) as '207 N Mill St'
-		Reading location_municipality (location_municipality) as 'Festus'
-		Reading location_province (location_province) as 'MO'
-		Reading location_postalcode_1 (location_postalcode_1) as '63028'
+		Reading location_street (location_street) as 'THIS IS A BAD ADDRESS'
+		Reading location_municipality (location_municipality) as 'FAIL'
+		Reading location_province (location_province) as 'ES'
 		Reading formats (formats) as 'O,WC'
 		Setting the meeting 'lang_enum' to 'en'.
 </pre><pre>	Meeting 9:
@@ -539,7 +535,7 @@
     [location_postal_code_1] =&gt; 62002
     [location_nation] =&gt; US
 )
-</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 6</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '2603 N Rogers Ave, Alton, IL'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '2603 North Rodgers Avenue, Alton, IL 62002, USA'.</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
+</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 6</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '2603 N Rogers Ave, Alton, IL'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '2603 North Rodgers Avenue, Alton, IL 62002, USA'.</td></tr><tr><td>&nbsp;</td><td colspan="2" style="font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
 (
     [service_body_bigint] =&gt; 4
     [meeting_name] =&gt; Women In Recovery Group
@@ -615,20 +611,16 @@
     [location_postal_code_1] =&gt; 63010
     [location_nation] =&gt; US
 )
-</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 8</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '207 N Mill St, Festus, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '207 North Mill Street, Festus, MO 63028, USA'.</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
+</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 8</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding 'THIS IS A BAD ADDRESS, Fail, ES'.</td></tr><tr><td>&nbsp;</td><td colspan="2" style="color:white;font-size:large;font-weight:bold;background-color:red;text-align:center">GEOCODE FAILURE!</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
 (
     [service_body_bigint] =&gt; 5
     [meeting_name] =&gt; Surrendering Our Will Group
     [weekday_tinyint] =&gt; 2
     [start_time] =&gt; 19:00:00
     [duration] =&gt; 1:00:00
-    [location_sub_province] =&gt; Jefferson
-    [location_info] =&gt; Entrance on North 2nd
-    [location_text] =&gt; First Presbyterian Church
-    [location_street] =&gt; 207 N Mill St
-    [location_municipality] =&gt; Festus
-    [location_province] =&gt; MO
-    [location_postalcode_1] =&gt; 63028
+    [location_street] =&gt; THIS IS A BAD ADDRESS
+    [location_municipality] =&gt; FAIL
+    [location_province] =&gt; ES
     [formats] =&gt; O,WC
     [lang_enum] =&gt; en
     [published] =&gt; 1
@@ -640,22 +632,14 @@
     [weekday_tinyint] =&gt; 2
     [start_time] =&gt; 19:00:00
     [duration] =&gt; 1:00:00
-    [location_sub_province] =&gt; Jefferson County
-    [location_info] =&gt; Entrance on North 2nd
-    [location_text] =&gt; First Presbyterian Church
-    [location_street] =&gt; 207 N Mill St
-    [location_municipality] =&gt; Festus
-    [location_province] =&gt; MO
-    [location_postalcode_1] =&gt; 63028
+    [location_street] =&gt; THIS IS A BAD ADDRESS
+    [location_municipality] =&gt; FAIL
+    [location_province] =&gt; ES
     [formats] =&gt; 17,33
     [lang_enum] =&gt; en
     [published] =&gt; 1
-    [longitude] =&gt; -90.3934110
-    [latitude] =&gt; 38.2211990
-    [location_postal_code_1] =&gt; 63028
-    [location_nation] =&gt; US
 )
-</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 9</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '3943 Main, Kansas City, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '3943 Main Street, Kansas City, MO 64111, USA'.</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
+</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 9</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '3943 Main, Kansas City, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '3943 Main Street, Kansas City, MO 64111, USA'.</td></tr><tr><td>&nbsp;</td><td colspan="2" style="font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
 (
     [service_body_bigint] =&gt; 6
     [meeting_name] =&gt; CAG Group
@@ -692,7 +676,7 @@
     [location_neighborhood] =&gt; Southmoreland
     [location_nation] =&gt; US
 )
-</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 10</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '3943 Main, Kansas City, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '3943 Main Street, Kansas City, MO 64111, USA'.</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
+</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 10</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '3943 Main, Kansas City, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '3943 Main Street, Kansas City, MO 64111, USA'.</td></tr><tr><td>&nbsp;</td><td colspan="2" style="font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
 (
     [service_body_bigint] =&gt; 6
     [meeting_name] =&gt; CAG Group
@@ -765,7 +749,7 @@
     [location_postal_code_1] =&gt; 66215
     [location_nation] =&gt; US
 )
-</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 12</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '329 Delaware, Leavenworth, KS'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '329 Delaware Street, Leavenworth, KS 66048, USA'.</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
+</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 12</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '329 Delaware, Leavenworth, KS'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '329 Delaware Street, Leavenworth, KS 66048, USA'.</td></tr><tr><td>&nbsp;</td><td colspan="2" style="font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
 (
     [service_body_bigint] =&gt; 7
     [meeting_name] =&gt; Recovery Is Possible Group
@@ -910,7 +894,7 @@
     [location_postal_code_1] =&gt; 64030
     [location_nation] =&gt; US
 )
-</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 16</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '118 22nd St, Oak Grove, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '118 Southwest 22 Street, Oak Grove, MO 64075, USA'.</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
+</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 16</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '118 22nd St, Oak Grove, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '118 Southwest 22 Street, Oak Grove, MO 64075, USA'.</td></tr><tr><td>&nbsp;</td><td colspan="2" style="font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
 (
     [service_body_bigint] =&gt; 9
     [meeting_name] =&gt; OG NA Group
@@ -1066,7 +1050,7 @@
     [location_postal_code_1] =&gt; 65203
     [location_nation] =&gt; US
 )
-</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 20</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '410 S Osage, Sedalia, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '410 South Osage Avenue, Sedalia, MO 65301, USA'.</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
+</pre></td></tr><tr><td style="color:white;background-color:black;font-weight:bold;text-align:center" colspan="3">Converting meeting 20</td></tr><tr><td>&nbsp;</td><td colspan="2">This meeting does not have a long/lat, so we are geocoding '410 S Osage, Sedalia, MO'.</td></tr><tr><td>&nbsp;</td><td colspan="2">Parsed '410 South Osage Avenue, Sedalia, MO 65301, USA'.</td></tr><tr><td>&nbsp;</td><td colspan="2" style="font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr><tr><td style="width:1em;border-bottom:2px solid black">&nbsp;</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td><td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td></tr><tr><td>&nbsp;</td><td style="vertical-align:top"><pre>Array
 (
     [service_body_bigint] =&gt; 11
     [meeting_name] =&gt; Because We Care Group

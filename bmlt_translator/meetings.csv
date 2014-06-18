@@ -6,7 +6,7 @@ service_body,meeting_name,weekday,start_time,duration,location_sub_province,loca
 4,"It Works, How and Why Group",1,10:30:00,1:00:00,Madison,,Community Counseling Center,2615 Edwards St,Alton,IL,62022,"O,WC",,,
 4,Women In Recovery Group,1,10:30:00,1:00:00,Madison,,Senior Services Plus,2603 N Rogers Ave,Alton,IL,62002,"O,WC",,,
 5,Point Of Freedom Group,2,19:00:00,1:00:00,Jefferson,,Community of Christ Church,2315 Lonedell Rd,Arnold,MO,63010,"O,WC",,,
-5,Surrendering Our Will Group,2,19:00:00,1:00:00,Jefferson,Entrance on North 2nd,First Presbyterian Church,207 N Mill St,Festus,MO,63028,"O,WC",,,
+5,Surrendering Our Will Group,2,19:00:00,1:00:00,,,,THIS IS A BAD ADDRESS,FAIL,ES,,"O,WC",,,
 6,CAG Group,1,10:00:00,1:00:00,Jackson,,,3943 Main,Kansas City,MO,64111,"C,L,WC",,,
 6,CAG Group,1,12:00:00,1:00:00,Jackson,,,3943 Main,Kansas City,MO,64111,"C,L,WC",,,
 7,Dead Or Alive Group,1,11:00:00,1:00:00,Johnson KS,,,7930 Quivira Rd,Lenexa,KS,66215,"C,T",,,
