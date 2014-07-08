@@ -387,7 +387,7 @@ CREATE TABLE IF NOT EXISTS `na_comdef_service_bodies` (
   KEY `sb_owner` (`sb_owner`),
   KEY `sb_owner_2` (`sb_owner_2`),
   KEY `sb_meeting_email` (`sb_meeting_email`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=21 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
 -- Truncate table before insert `na_comdef_service_bodies`
@@ -436,7 +436,7 @@ CREATE TABLE IF NOT EXISTS `na_comdef_users` (
   KEY `email_address_string` (`email_address_string`),
   KEY `last_access_datetime` (`last_access_datetime`),
   KEY `lang_enum` (`lang_enum`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
 -- Truncate table before insert `na_comdef_users`
