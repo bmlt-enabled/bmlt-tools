@@ -1094,6 +1094,10 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 {
                 $value = bmlt_translate_format_codes ( $value );
                 }
+            elseif ( $key == 'weekday_tinyint' )
+                {
+                $value = intval ( $value ) - 1;
+                }
                 
             $ret[$key] = $value;
             }
@@ -1106,7 +1110,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     
             if ( $address_string )
                 {
-                $region_bias = bmlt_get_region_bias();
+                $region_bias = function_exists ( 'bmlt_get_region_bias' ) ? bmlt_get_region_bias() : NULL;
         
                 $geocoded_result = bmlt_geocode ( $address_string );
                 
