@@ -58,7 +58,7 @@ function bmlt_get_field_conversion_table()
                                 'location_info'             =>      'location_info',                            /* Extra information about the location (i.e. "Upstairs on the right") */
                                 'location_name'             =>      'location_text',                            /* The name of the location (i.e. "St. Euphemism RC") */
                                 'location_street'           =>      'location_street',                          /* The street address */
-                                'location_postalcode_1'     =>      'location_postalcode_1',                    /* The postcode/zip code */
+                                'location_postalcode_1'     =>      'location_postal_code_1',                   /* The postcode/zip code */
                                 'longitude'                 =>      'longitude',                                /* Any existing longitude */
                                 'latitude'                  =>      'latitude'                                  /* Any existing latitude */
                                 );
