@@ -22,6 +22,10 @@ as general use scripts.
 CHANGELIST
 ----------
 
+= bmlt_translator Version 1.0.2
+    * July 31, 2014
+    * Fixed a couple of bugs in the import script, with regards to the postal (zip) code.
+    
 = bmlt_translator Version 1.0.1
     * June 18, 2014
     * A few bug fixes

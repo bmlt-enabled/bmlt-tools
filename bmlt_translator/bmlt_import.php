@@ -2,7 +2,7 @@
 /***********************************************************************/
 /**	\file	bmlt_import.php
 
-    \version 1.0.1
+    \version 1.0.2
 
 	\brief  This file contains a range of functions to be used by BMLT database importing scripts. Including this file instantiates a BMLT root server.
 	
@@ -398,14 +398,13 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 // Here, we simply extract the parts of the array that correspond to the data and longdata tables.
                 if ( isset ( $in_templates_array['data'] ) && is_array ( $in_templates_array['data'] ) && count ( $in_templates_array['data'] ) )
                     {
-                    $data_values = array_intersect_key ( $in_out_meeting_array, $in_templates_array['data'] );
+                    $data_values = array_intersect_key ( $in_meeting_array_other, $in_templates_array['data'] );
                     }
                 
                 if ( isset ( $in_templates_array['longdata'] ) && is_array ( $in_templates_array['longdata'] ) && count ( $in_templates_array['longdata'] ) )
                     {
-                    $longdata_values = array_intersect_key ( $in_out_meeting_array, $in_templates_array['longdata'] );
+                    $longdata_values = array_intersect_key ( $in_meeting_array_other, $in_templates_array['longdata'] );
                     }
-                
                 // What we do here, is expand each of the input key/value pairs to have the characteristics assigned by the template for that key.
                 foreach ( $data_values as $key => &$data_value )
                     {
@@ -418,24 +417,9 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         $data_value['field_prompt'] = $in_templates_array['data'][$key]['field_prompt'];
                         $data_value['lang_enum'] = $in_templates_array['data'][$key]['lang_enum'];
                         $data_value['visibility'] = $in_templates_array['data'][$key]['visibility'];
-                        if ( isset ( $in_templates_array['data'][$key]['data_bigint'] ) && $in_templates_array['data'][$key]['data_bigint'] )
-                            {
-                            $data_value['data_bigint'] = intval ( $val );
-                            $data_value['data_double'] = null;
-                            $data_value['data_string'] = null;
-                            }
-                        elseif ( isset ( $in_templates_array['data'][$key]['data_double'] ) && $in_templates_array['data'][$key]['data_double'] )
-                            {
-                            $data_value['data_double'] = floatval ( $val );
-                            $data_value['data_bigint'] = null;
-                            $data_value['data_string'] = null;
-                            }
-                        elseif ( isset ( $in_templates_array['data'][$key]['data_string'] ) && $in_templates_array['data'][$key]['data_string'] )
-                            {
-                            $data_value['data_string'] = $val;
-                            $data_value['data_bigint'] = null;
-                            $data_value['data_double'] = null;
-                            }
+                        $data_value['data_string'] = $val;
+                        $data_value['data_bigint'] = intval ( $val );
+                        $data_value['data_double'] = floatval ( $val );
                         }
                     else
                         {
