@@ -922,10 +922,6 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         }
                     }
                 }
-            else
-                {
-                return null;
-                }
             }
             
         if ( is_array ( $ret ) && count ( $ret ) )
