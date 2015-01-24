@@ -160,9 +160,9 @@ function ProcessResults (   $parsed_file,   ///< The associative array that repr
             $meeting = $meeting->GetMeetingData();
             foreach ( $parsed_file as &$world_meeting )
                 {
-                if ( IsThisTheMeeting ( $meeting, $world_meeting ) && ($world_meeting['Committee'] != $meeting['worldid_mixed']) )
+                if ( IsThisTheMeeting ( $meeting, $world_meeting ) )
                     {
-                    $sql_args = array ($world_meeting['Committee'], $meeting['id_bigint'] );
+                    $sql_args = array ($world_meeting['Committee'], intval ( $meeting['id_bigint'] ) );
                     $sql = 'UPDATE `na_comdef_meetings_main` SET `worldid_mixed`=? WHERE `id_bigint`=?;';
 					
 					try
@@ -198,73 +198,85 @@ function IsThisTheMeeting ( $in_bmlt_meeting,           ///< The BMLT meeting to
     $ret = false;
     global $gDays, $gTotal;
     
-    $accuracy = __ACCURACY_LOW__;
-    // See if they want high accuracy.
-    if ( isset ( $_POST['accuracy'] ) )
+    if ( $in_world_meeting_record['Committee'] != $in_bmlt_meeting['worldid_mixed'] )
         {
-        $accuracy = (strtolower(trim($_POST['accuracy'])) == __ACCURACY_HIGH__) ? __ACCURACY_HIGH__ : __ACCURACY_LOW__;
-        }
-    else if ( isset ( $_GET['accuracy'] ) )
-        {
-        $accuracy = (strtolower(trim($_GET['accuracy'])) == __ACCURACY_HIGH__) ? __ACCURACY_HIGH__ : __ACCURACY_LOW__;
-        }
-    
-    $comp_a = array();
-    $comp_b = array();
-    
-    if ( $accuracy == __ACCURACY_HIGH__ )
-        {
-        $comp_a[0] = trim($in_bmlt_meeting['meeting_name']['value']);
-        $comp_b[0] = trim($in_world_meeting_record['CommitteeName']);
-        }
-    else
-        {
-        $comp_a[0] = trim(implode(' ',SplitIntoMetaphone ( $in_bmlt_meeting['meeting_name']['value'] )));
-        $comp_b[0] = trim(implode(' ',SplitIntoMetaphone ( $in_world_meeting_record['CommitteeName'] )));
-        }
-
-    $comp_a[1] = $gDays[$in_bmlt_meeting['weekday_tinyint']-1];
-    $comp_b[1] = $in_world_meeting_record['Day'];
-    
-    if ( trim($in_world_meeting_record['Zip']) && trim($in_bmlt_meeting['location_postal_code_1']['value']) )
-        {
-        $comp_a[3] = trim($in_bmlt_meeting['location_postal_code_1']['value']);
-        $comp_b[3] = trim($in_world_meeting_record['Zip']);
-        }
-    else
-        {
-        $comp_a[3] = trim($in_bmlt_meeting['location_nation']['value']) ? trim($in_bmlt_meeting['location_nation']['value']) : null;
-        $comp_b[3] = trim($in_world_meeting_record['Country']) ? trim($in_world_meeting_record['Country']) : null;
-        $comp_a[4] = trim($in_bmlt_meeting['location_province']['value']) ? trim($in_bmlt_meeting['location_province']['value']) : null;
-        $comp_b[4] = trim($in_world_meeting_record['State']) ? trim($in_world_meeting_record['State']) : null;
-        $comp_b[5] = trim($in_world_meeting_record['City']) ? trim($in_world_meeting_record['City']) : null;
-
-        $comp_a[5] = trim($in_bmlt_meeting['location_municipality']['value']) ? trim($in_bmlt_meeting['location_municipality']['value']) : null;
-
-        if ( !$comp_a[5] || ($comp_b[5] == trim($in_bmlt_meeting['location_city_subsection']['value'])) )
+        if ( isset ( $in_world_meeting_record['bmlt_id'] ) && intval ( $in_world_meeting_record['bmlt_id'] ) )
             {
-            $comp_a[5] = trim($in_bmlt_meeting['location_city_subsection']['value']) ? trim($in_bmlt_meeting['location_city_subsection']['value']) : null;
+            if ( intval ( $in_world_meeting_record['bmlt_id'] ) == intval ( $in_bmlt_meeting['id_bigint'] ) )
+                {
+                return true;
+                }
+            }
+    
+        $accuracy = __ACCURACY_LOW__;
+        // See if they want high accuracy.
+        if ( isset ( $_POST['accuracy'] ) )
+            {
+            $accuracy = (strtolower(trim($_POST['accuracy'])) == __ACCURACY_HIGH__) ? __ACCURACY_HIGH__ : __ACCURACY_LOW__;
+            }
+        else if ( isset ( $_GET['accuracy'] ) )
+            {
+            $accuracy = (strtolower(trim($_GET['accuracy'])) == __ACCURACY_HIGH__) ? __ACCURACY_HIGH__ : __ACCURACY_LOW__;
+            }
+    
+        $comp_a = array();
+        $comp_b = array();
+    
+        if ( $accuracy == __ACCURACY_HIGH__ )
+            {
+            $comp_a[0] = trim($in_bmlt_meeting['meeting_name']['value']);
+            $comp_b[0] = trim($in_world_meeting_record['CommitteeName']);
+            }
+        else
+            {
+            $comp_a[0] = trim(implode(' ',SplitIntoMetaphone ( $in_bmlt_meeting['meeting_name']['value'] )));
+            $comp_b[0] = trim(implode(' ',SplitIntoMetaphone ( $in_world_meeting_record['CommitteeName'] )));
             }
 
-        if ( !$comp_a[5] || ($comp_b[5] == trim($in_bmlt_meeting['Neighborhood']['value'])) )
+        $comp_a[1] = $gDays[$in_bmlt_meeting['weekday_tinyint']-1];
+        $comp_b[1] = $in_world_meeting_record['Day'];
+    
+        if ( trim($in_world_meeting_record['Zip']) && trim($in_bmlt_meeting['location_postal_code_1']['value']) )
             {
-            $comp_a[5] = trim($in_bmlt_meeting['Neighborhood']['value']) ? trim($in_bmlt_meeting['Neighborhood']['value']) : null;
+            $comp_a[3] = trim($in_bmlt_meeting['location_postal_code_1']['value']);
+            $comp_b[3] = trim($in_world_meeting_record['Zip']);
+            }
+        else
+            {
+            $comp_a[3] = trim($in_bmlt_meeting['location_nation']['value']) ? trim($in_bmlt_meeting['location_nation']['value']) : null;
+            $comp_b[3] = trim($in_world_meeting_record['Country']) ? trim($in_world_meeting_record['Country']) : null;
+            $comp_a[4] = trim($in_bmlt_meeting['location_province']['value']) ? trim($in_bmlt_meeting['location_province']['value']) : null;
+            $comp_b[4] = trim($in_world_meeting_record['State']) ? trim($in_world_meeting_record['State']) : null;
+            $comp_b[5] = trim($in_world_meeting_record['City']) ? trim($in_world_meeting_record['City']) : null;
+
+            $comp_a[5] = trim($in_bmlt_meeting['location_municipality']['value']) ? trim($in_bmlt_meeting['location_municipality']['value']) : null;
+
+            if ( !$comp_a[5] || ($comp_b[5] == trim($in_bmlt_meeting['location_city_subsection']['value'])) )
+                {
+                $comp_a[5] = trim($in_bmlt_meeting['location_city_subsection']['value']) ? trim($in_bmlt_meeting['location_city_subsection']['value']) : null;
+                }
+
+            if ( !$comp_a[5] || ($comp_b[5] == trim($in_bmlt_meeting['Neighborhood']['value'])) )
+                {
+                $comp_a[5] = trim($in_bmlt_meeting['Neighborhood']['value']) ? trim($in_bmlt_meeting['Neighborhood']['value']) : null;
+                }
+            }
+    
+        // High accuracy includes the exact street address.
+        if ( $accuracy == __ACCURACY_HIGH__ )
+            {
+            $comp_a[count($comp_a)] = trim($in_bmlt_meeting['location_street']['value']);
+            $comp_b[count($comp_b)] = trim($in_world_meeting_record['Address']);
+            }
+    
+        // Okay, now we have 2 arrays, filled with values to compare. All fields need to be exactly the same.
+    
+        if ( count(array_diff($comp_b,$comp_a)) == 0 && count(array_diff($comp_a,$comp_b)) == 0 )
+            {
+            $ret = true;
             }
         }
     
-    // High accuracy includes the exact street address.
-    if ( $accuracy == __ACCURACY_HIGH__ )
-        {
-        $comp_a[count($comp_a)] = trim($in_bmlt_meeting['location_street']['value']);
-        $comp_b[count($comp_b)] = trim($in_world_meeting_record['Address']);
-        }
-    
-    // Okay, now we have 2 arrays, filled with values to compare. All fields need to be exactly the same.
-    
-    if ( count(array_diff($comp_b,$comp_a)) == 0 && count(array_diff($comp_a,$comp_b)) == 0 )
-        {
-        $ret = true;
-        }
     return $ret;
 }
 ?>
