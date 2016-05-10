@@ -2,7 +2,7 @@
 /***********************************************************************/
 /**	\file	bmlt_import.php
 
-    \version 1.0.2
+    \version 1.1.0
 
 	\brief  This file contains a range of functions to be used by BMLT database importing scripts. Including this file instantiates a BMLT root server.
 	
@@ -38,13 +38,19 @@
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title>BMLT IMPORT SCRIPT</title>
+	<style type="text/css">
+	    pre
+	        {
+	        width:100%;
+	        }
+	</style>
 </head>
 <body><?php
 ini_set ( 'auto_detect_line_endings', 1 );      // Always detect line endings.
 define ( '_DEFAULT_ROOT_DIR_', 'main_server' ); // The default names the main directory "main_server".
 
 global $gDays, $g_main_keys, $g_root_dir, $g_server;
-global $region_bias;
+global $region_bias, $service_body_array;
     
 require_once ( dirname ( __FILE__ )."/bmlt_conversion_tables.php" );    // Import our transfer-specific data maps.
 
@@ -88,7 +94,6 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         }
 
     $local_strings = $g_server->GetLocalStrings();
-    
     $region_bias = $local_strings['region_bias'];
     
     /***********************************************************************/
@@ -142,8 +147,9 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         
         if ( file_exists ( $file ) )
             {
+            $display_buffer = '';
             $keys = null;
-            echo ( "<pre>Opening $file, which is a " );
+            $display_buffer = "<p>Opening $file, which is a ";
             $file_handle = fopen ( $file, "r" );
         
             if ( $file_handle )
@@ -156,17 +162,17 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             
                 if ( !is_array ( $key_line ) || !(count ( $key_line ) > 2) )
                     {
-                    echo ( "tab" );
+                    $display_buffer .= "tab";
                     $delimiter = "\t";
                     rewind ( $file_handle );
                     $key_line = fgetcsv ( $file_handle, null, $delimiter );
                     }
                 else
                     {
-                    echo ( "comma" );
+                    $display_buffer .= "comma";
                     }
                 
-                echo ( '-delimited file.</pre>' );
+                $display_buffer .= '-delimited file.</p>';
                 
                 while ( ( $data = fgetcsv ( $file_handle, null, $delimiter ) ) !== FALSE )
                     {
@@ -195,14 +201,14 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                 
                                 if ( isset ( $new_key ) && $new_key && $value )
                                     {
-                                    $display .= "\t\tReading $new_key ($key) as the default value, which is '$default_value'\n";
+                                    $display .= "<dd>Reading $new_key ($key) as the default value, which is '$default_value'</dd>\n";
                                     }
                                 
                                 $value = $default_value;
                                 }
                             elseif ( isset ( $new_key ) && $new_key && $value )
                                 {
-                                $display .= "\t\tReading $new_key ($key) as '$value'\n";
+                                $display .= "<dd>Reading $new_key ($key) as '$value'</dd>\n";
                                 }
 
                             if ( isset ( $new_key ) && $new_key && $value )
@@ -215,20 +221,22 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                     if ( !isset ( $new_data['lang_enum'] ) || !$new_data['lang_enum'] )
                         {
                         $new_data['lang_enum'] = $in_lang_enum;
-                        $display .= "\t\tSetting the meeting 'lang_enum' to '$in_lang_enum'.\n";
+                        $display .= "<dd>Setting the meeting 'lang_enum' to '$in_lang_enum'.<dd>\n";
                         }
                     
                     if ( !isset ( $new_data['published'] ) )
                         {
-                        $display .= "\t\tMarking this meeting as published (Will be displayed immediately).";
+                        $display .= "<dd>Marking this meeting as published (Will be displayed immediately).</dd>";
                         $new_data['published'] = 1;
                         }
 
                     array_push ( $ret, $new_data );
                     
-                    echo ( "<pre>\tMeeting $count:\n".$display.'</pre>' );
+                    $display_buffer .= "<dl><dt>Meeting $count:<dt>".$display.'</dl>';
                     $count++;
                     }
+                    
+                echo "<h4>$count Meetings read</h4>$display_buffer\n";
             
                 fclose ( $file_handle );
                 }
@@ -307,7 +315,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         
         $ret = null;
         $status = null;
-        $uri = 'http://maps.googleapis.com/maps/api/geocode/xml?address='.urlencode ( $in_address ).'&sensor=false';
+        $uri = 'http://maps.googleapis.com/maps/api/geocode/xml?address='.urlencode ( $in_address );
         if ( $region_bias )
             {
             $uri .= '&region='.strtolower(trim($region_bias));
@@ -632,8 +640,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 (which is an associative array). The Array element key is the World ID of
                 the Service body, so it can be used to match up with imported data.
     */
-    function extract_service_bodies (   $in_file_contents   ///< The parsed "raw" file contents.
-                                    )
+    function extract_service_bodies()
     {
         global $g_server;
         
@@ -1053,6 +1060,204 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     }
     
     /***********************************************************************/
+    /**	\brief  Looks up the given format, and returns the numerical code for it.
+
+        \returns an integer as a string. '' if the code can't be found.
+    */
+    function bmlt_get_code_for_naws_format (    $in_naws_format  ///< A string, with the NAWS format.
+                                            )
+    {
+        $ret = '';
+        global $g_server;
+        
+        $formats_obj = $g_server->GetFormatsObj();
+    
+        if ( $formats_obj instanceof c_comdef_formats )
+            {
+            $formats_obj = $formats_obj->GetFormatsByLanguage($g_server->GetLocalLang());
+
+            $match_array = array();
+
+            foreach ( $formats_obj as $format )
+                {
+                if ( $format instanceof c_comdef_format )
+                    {
+                    $world_code = $format->GetWorldID();
+                    
+                    if ( $world_code )
+                        {
+                        $match_array[$world_code] = intval ( $format->GetSharedID() );
+                        }
+                    }
+                }
+            
+            foreach ( $match_array as $match => $code )
+                {
+                if ( $match == $in_naws_format )
+                    {
+                    $ret = strval ( $code );
+                    break;
+                    }
+                }
+            }
+            
+        return $ret;
+    }
+    
+    /***********************************************************************/
+    /**	\brief  Builds a format from the various NAWS fields.
+
+        \returns a string, containing the formats as numbers, in CSV form.
+    */
+    function bmlt_determine_formats_from_world (    $in_one_meeting ///< The meeting, in the source format. An associative array.
+                                                )
+    {
+        $ret = '';
+                
+        if ( isset ( $in_one_meeting['FormatClosedOpen'] ) && (strtolower($in_one_meeting['FormatClosedOpen']) == 'open') )
+            {
+            $ret = bmlt_get_code_for_naws_format ( 'OPEN' );
+            }
+        else
+            {
+            $ret = bmlt_get_code_for_naws_format ( 'CLOSED' );
+            }
+        
+        if ( isset ( $in_one_meeting['FormatWheelchair'] ) && (strtolower($in_one_meeting['FormatWheelchair']) == 'true') )
+            {
+            $ret .= ','.bmlt_get_code_for_naws_format ( 'WCHR' );
+            }
+            
+        if ( isset ( $in_one_meeting['Format1'] ) && $in_one_meeting['Format1'] )
+            {
+            $ret .= ','.bmlt_get_code_for_naws_format ( $in_one_meeting['Format1'] );
+            }
+            
+        if ( isset ( $in_one_meeting['Format2'] ) && $in_one_meeting['Format2'] )
+            {
+            $ret .= ','.bmlt_get_code_for_naws_format ( $in_one_meeting['Format2'] );
+            }
+            
+        if ( isset ( $in_one_meeting['Format3'] ) && $in_one_meeting['Format3'] )
+            {
+            $ret .= ','.bmlt_get_code_for_naws_format ( $in_one_meeting['Format3'] );
+            }
+            
+        if ( isset ( $in_one_meeting['Format4'] ) && $in_one_meeting['Format4'] )
+            {
+            $ret .= ','.bmlt_get_code_for_naws_format ( $in_one_meeting['Format4'] );
+            }
+            
+        if ( isset ( $in_one_meeting['Format5'] ) && $in_one_meeting['Format5'] )
+            {
+            $ret .= ','.bmlt_get_code_for_naws_format ( $in_one_meeting['Format5'] );
+            }
+        
+        return $ret;
+    }
+    
+    /***********************************************************************/
+    /**	\brief  Goes through the meeting fields, and looks for the ones that need to be functionally parsed.
+
+        \returns an associative array, in BMLT-ready format, of the meeting data after parsing.
+    */
+    function bmlt_clean_one_meeting (   $in_one_meeting ///< The meeting, in the source format. An associative array.
+                                    )
+    {
+        global $service_body_array;
+        
+        if ( (isset ( $in_one_meeting['Delete'] ) && $in_one_meeting['Delete']) || (isset ( $in_one_meeting['Institutional'] ) && (strtolower($in_one_meeting['Institutional']) == 'true')) )
+            {
+            return NULL;
+            }
+        
+        $in_one_meeting['Delete'] = NULL;
+        unset ( $in_one_meeting['Delete'] );
+        $in_one_meeting['Institutional'] = NULL;
+        unset ( $in_one_meeting['Institutional'] );
+        
+        if ( isset ( $in_one_meeting['AreaRegion'] ) )
+            {
+            $value = $in_one_meeting['AreaRegion'];
+            $in_one_meeting['service_body_bigint'] = intval($service_body_array[$in_one_meeting['AreaRegion']]['id_bigint']);
+            $name = $service_body_array[$value]['name_string'];
+            echo ( "<tr><td colspan=\"2\">This meeting is part of the '$name' ($value) Service Body.</td></tr>" );
+            $in_one_meeting['AreaRegion'] = NULL;
+            unset ( $in_one_meeting['AreaRegion'] );
+            }
+        
+        $in_one_meeting['longitude'] = floatval ( str_replace ( ',', '.', $in_one_meeting['longitude'] ) );
+        $in_one_meeting['latitude'] = floatval ( str_replace ( ',', '.', $in_one_meeting['latitude'] ) );
+        
+        if ( isset ( $in_one_meeting['WeekdayString'] ) )
+            {
+            $in_one_meeting['weekday_tinyint'] = func_convert_from_english_full_weekday ( $in_one_meeting['WeekdayString'] );
+
+            $in_one_meeting['WeekdayString'] = NULL;
+            unset ( $in_one_meeting['WeekdayString'] );
+            }
+        
+        if ( isset ( $in_one_meeting['SimpleMilitaryTime'] ) )
+            {
+            $in_one_meeting['start_time'] = func_start_time_from_simple_military ( $in_one_meeting['SimpleMilitaryTime'] );
+            
+            $in_one_meeting['SimpleMilitaryTime'] = NULL;
+            unset ( $in_one_meeting['SimpleMilitaryTime'] );
+            }
+            
+        if ( isset ( $in_one_meeting['RoomInfo'] ) )
+            {
+            $val = intval ( $in_one_meeting['RoomInfo'] );
+            $openParen = FALSE;
+            
+            if ( isset ( $in_one_meeting['location_info'] ) && $in_one_meeting['location_info'] )
+                {
+                $in_one_meeting['location_info'] .= ' (';
+                $openParen = TRUE;
+                }
+            else
+                {
+                $in_one_meeting['location_info'] = '';
+                }
+            
+            $in_one_meeting['location_info'] .= "$val";
+            
+            if ( $openParen )
+                {
+                $in_one_meeting['location_info'] .= ")";
+                }
+            
+            $in_one_meeting['RoomInfo'] = NULL;
+            unset ( $in_one_meeting['RoomInfo'] );
+            }
+        
+        $in_one_meeting['formats'] = bmlt_determine_formats_from_world ( $in_one_meeting );
+        
+        $in_one_meeting['FormatClosedOpen'] = NULL;
+        unset ( $in_one_meeting['FormatClosedOpen'] );
+        $in_one_meeting['FormatWheelchair'] = NULL;
+        unset ( $in_one_meeting['FormatWheelchair'] );
+        $in_one_meeting['FormatLanguage1'] = NULL;
+        unset ( $in_one_meeting['FormatLanguage1'] );
+        $in_one_meeting['FormatLanguage2'] = NULL;
+        unset ( $in_one_meeting['FormatLanguage2'] );
+        $in_one_meeting['FormatLanguage3'] = NULL;
+        unset ( $in_one_meeting['FormatLanguage3'] );
+        $in_one_meeting['Format1'] = NULL;
+        unset ( $in_one_meeting['Format1'] );
+        $in_one_meeting['Format2'] = NULL;
+        unset ( $in_one_meeting['Format2'] );
+        $in_one_meeting['Format3'] = NULL;
+        unset ( $in_one_meeting['Format3'] );
+        $in_one_meeting['Format4'] = NULL;
+        unset ( $in_one_meeting['Format4'] );
+        $in_one_meeting['Format5'] = NULL;
+        unset ( $in_one_meeting['Format5'] );
+        
+        return $in_one_meeting;
+    }
+    
+    /***********************************************************************/
     /**	\brief  Converts a meeting from the "native" data format, to the BMLT format.
 
         \returns an associative array, in BMLT-ready format, of the meeting data.
@@ -1062,110 +1267,106 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                         )
     {
         global $region_bias;
-        
-        echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;text-align:center\" colspan=\"3\">Converting meeting $in_count</td></tr>" );
         $ret = null;
+        
+        echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;text-align:center\" colspan=\"2\">Converting meeting $in_count</td></tr>" );
     
+        $in_one_meeting = bmlt_clean_one_meeting ( $in_one_meeting );
         // We cycle through all the meeting data, and extract that which can be mapped to BMLT context.
         
-        foreach ( $in_one_meeting as $key => $value )
+        if ( $in_one_meeting )
             {
-            if ( $key == 'formats' )
-                {
-                $value = bmlt_translate_format_codes ( $value );
-                }
-            elseif ( $key == 'weekday_tinyint' )
-                {
-                $value = intval ( $value ) - 1;
-                }
-                
-            $ret[$key] = $value;
-            }
-
-        // See if we need to geocode.
-        if ( !isset ( $in_one_meeting['longitude'] ) ||  !isset ( $in_one_meeting['latitude'] ) )
-            {
-            $address_string = bmlt_build_address ( $in_one_meeting );
-            echo ( "<tr><td>&nbsp;</td><td colspan=\"2\">This meeting does not have a long/lat, so we are geocoding '$address_string'.</td></tr>" );
-    
-            if ( $address_string )
-                {
-                $region_bias = function_exists ( 'bmlt_get_region_bias' ) ? bmlt_get_region_bias() : NULL;
+            $ret = $in_one_meeting;
         
-                $geocoded_result = bmlt_geocode ( $address_string );
-                
-                if ( $geocoded_result )
+            // See if we need to geocode.
+            if ( !isset ( $in_one_meeting['longitude'] ) ||  !isset ( $in_one_meeting['latitude'] ) )
+                {
+                $address_string = bmlt_build_address ( $in_one_meeting );
+                echo ( "<tr><td colspan=\"2\">This meeting does not have a long/lat, so we are geocoding '$address_string'.</td></tr>\n" );
+    
+                if ( $address_string )
                     {
-                    if ( isset ( $geocoded_result['result']['partial_geocode'] ) )
-                        {
-                        echo ( "<tr><td>&nbsp;</td><td colspan=\"2\" style=\"font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr>" );
-                        }
-                    $ret['longitude'] = $geocoded_result['result']['longitude'];
-                    $ret['latitude'] = $geocoded_result['result']['latitude'];
+                    $region_bias = function_exists ( 'bmlt_get_region_bias' ) ? bmlt_get_region_bias() : NULL;
+        
+                    $geocoded_result = bmlt_geocode ( $address_string );
                 
-                    if ( array_key_exists ( 'location_postal_code_1', $geocoded_result['result']) )
+                    if ( $geocoded_result )
                         {
-                        $ret['location_postal_code_1'] = $geocoded_result['result']['location_postal_code_1'];
-                        }
+                        if ( isset ( $geocoded_result['result']['partial_geocode'] ) )
+                            {
+                            echo ( "<tr><td colspan=\"2\" style=\"font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr>\n" );
+                            }
+                        $ret['longitude'] = $geocoded_result['result']['longitude'];
+                        $ret['latitude'] = $geocoded_result['result']['latitude'];
                 
-                    if ( array_key_exists ( 'location_neighborhood', $geocoded_result['result'] ) )
+                        if ( array_key_exists ( 'location_postal_code_1', $geocoded_result['result']) )
+                            {
+                            $ret['location_postal_code_1'] = $geocoded_result['result']['location_postal_code_1'];
+                            }
+                
+                        if ( array_key_exists ( 'location_neighborhood', $geocoded_result['result'] ) )
+                            {
+                            $ret['location_neighborhood'] = $geocoded_result['result']['location_neighborhood'];
+                            }
+                
+                        if ( array_key_exists ( 'location_sub_province', $geocoded_result['result'] ) )
+                            {
+                            $ret['location_sub_province'] = $geocoded_result['result']['location_sub_province'];
+                            }
+                
+                        if ( array_key_exists ( 'location_province', $geocoded_result['result'] ) )
+                            {
+                            $ret['location_province'] = $geocoded_result['result']['location_province'];
+                            }
+                
+                        if ( array_key_exists ( 'location_nation', $geocoded_result['result'] ) )
+                            {
+                            $ret['location_nation'] = $geocoded_result['result']['location_nation'];
+                            }
+                
+                        usleep ( 500000 );  // This prevents Google from summarily ejecting us as abusers.
+                        }
+                    else
                         {
-                        $ret['location_neighborhood'] = $geocoded_result['result']['location_neighborhood'];
+                        echo ( "<tr><td colspan=\"2\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE!</td></tr>\n" );
                         }
-                
-                    if ( array_key_exists ( 'location_sub_province', $geocoded_result['result'] ) )
-                        {
-                        $ret['location_sub_province'] = $geocoded_result['result']['location_sub_province'];
-                        }
-                
-                    if ( array_key_exists ( 'location_province', $geocoded_result['result'] ) )
-                        {
-                        $ret['location_province'] = $geocoded_result['result']['location_province'];
-                        }
-                
-                    if ( array_key_exists ( 'location_nation', $geocoded_result['result'] ) )
-                        {
-                        $ret['location_nation'] = $geocoded_result['result']['location_nation'];
-                        }
-                
-                    usleep ( 500000 );  // This prevents Google from summarily ejecting us as abusers.
                     }
                 else
                     {
-                    echo ( "<tr><td>&nbsp;</td><td colspan=\"2\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE!</td></tr>" );
+                    echo ( "<tr><td colspan=\"2\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE!</td></tr>\n" );
                     }
                 }
             else
                 {
-                echo ( "<tr><td>&nbsp;</td><td colspan=\"2\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE!</td></tr>" );
+                echo ( "<tr><td colspan=\"2\">This already has a long/lat. No need to geocode</td></tr>\n" );
                 }
             }
         else
             {
-            echo ( "<tr><td>&nbsp;</td><td colspan=\"2\">This already has a long/lat. No need to geocode</td></tr>" );
+            echo ( "<tr><td colspan=\"2\">This meeting is deleted, institutional, or too corrupted to convert.</td></tr>\n" );
             }
+        
         echo ( '<tr>' );
-        echo ( '<td style="width:1em;border-bottom:2px solid black">&nbsp;</td>' );
-        echo ( '<td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td>' );
-        echo ( '<td style="text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td>' );
-        echo ( '</tr>' );
+        echo ( '<td style="width:50%;text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td>' );
+        echo ( '<td style="width:50%;text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td>' );
+        echo ( "</tr>\n" );
         echo ( '<tr>' );
-        echo ( '<td>&nbsp;</td>' );
         echo ( '<td style="vertical-align:top">' );
         echo ( '<pre>'.htmlspecialchars ( print_r ( $in_one_meeting, true ) ).'</pre>' );
         echo ( '</td>' );
         echo ( '<td style="vertical-align:top">' );
         echo ( '<pre>'.htmlspecialchars ( print_r ( $ret, true ) ).'</pre>' );
         echo ( '</td>' );
-        echo ( '</tr>' );
-        
+        echo ( "</tr>\n" );
+
         return $ret;
     }
     
 /* ############################################ MAIN CONTEXT ############################################ */
 
-    echo ( "<pre>Starting Import of meetings.</pre>" );
+    echo ( "<h2>Starting Import of meetings.</h2>" );
     $data = bmlt_get_delimited_file_contents ( null, $g_server->GetLocalLang() );    // Read in the file.
+    $service_body_array = extract_service_bodies();
 
     $ret = null;
 
@@ -1174,27 +1375,27 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         set_time_limit ( count ( $data ) * 2 ); // Set a long time limit for this operation (could take some time).
         $meetings = array();
         $templates = bmlt_fetch_templates ();   // Get the field templates from the server.
-    
+
         if ( is_array ( $templates ) && count ( $templates ) )
             {
-            echo ( '<pre>Converting the meetings to BMLT format.</pre>' );
-            echo ( '<table cellpadding="0" cellspacing="0" border="0" style="border:none">' );
+            echo ( '<h2>Converting the meetings to BMLT format.</h2>' );
+            echo ( '<table cellpadding="0" cellspacing="0" border="0" style="border:none;width:100%">'."\n" );
             $count = 1;
             foreach ( $data as $meeting )
                 {
-                $meeting = bmlt_convert_one_meeting ( $meeting, $count );
-
-                if ( is_array ( $meeting ) && count ( $meeting ) )
+                $cleaned_meeting = bmlt_convert_one_meeting ( $meeting, $count );
+                if ( is_array ( $cleaned_meeting ) && count ( $cleaned_meeting ) )
                     {
-                    $ret .= bmlt_add_meeting_to_database ( $meeting, $templates )."\n";
+                    $ret .= bmlt_add_meeting_to_database ( $cleaned_meeting, $templates )."\n";
                     }
                 else
                     {
-                    echo ( 'Mssing Meeting!' );
+            echo ( "<tr><td colspan=\"2\">Meeting Is Missing!</td></tr>\n" );
                     }
                 
                 $count++;
                 }
+            echo ( "</table>\n" );
             }
         else
             {

@@ -2,7 +2,7 @@
 /***********************************************************************/
 /**	\file	bmlt_conversion_tables.php
 
-    \version 1.0.2
+    \version 1.1.0
 
 	\brief  This is the file that should be adjusted for individual imports.
 	
@@ -45,22 +45,40 @@ function bmlt_get_field_conversion_table()
 //                                                                  NOTE: An array means that the given value is a default (for an empty source)
 //                                                                  These are the kays used in the database for the meeting values. If you don't know
 //                                                                  what that means, then you probably shouldn't be running this script.
-    $conversion_table = array ( 'service_body'              =>      'service_body_bigint',                      /* NOTE: This is the ID used to identify the Service body in the BMLT Root Server. */
-                                'location_municipality'     =>      'location_municipality',                    /* Town name */
-                                'location_sub_province'     =>      'location_sub_province',                    /* County */
-                                'location_province'         =>      array ( 'location_province' => 'MO' ),      /* State */
-                                'meeting_name'              =>      array ( 'meeting_name' => 'NA Meeting' ),   /* Used when there is no meeting name. */
-                                'weekday'                   =>      'weekday_tinyint',                          /* 1 = Sunday, 7 = Saturday */
-                                'start_time'                =>      'start_time',                               /* In 00:00:00 military format */
-                                'duration'                  =>      array ( 'duration' => '1:00:00' ),          /* The default duration is 1 hour */
-                                'formats'                   =>      array ( 'formats' => 'C' ),                 /* If no formats are given, the meeting is closed. */
-                                'comments'                  =>      'comments',                                 /* Any additional comments */
-                                'location_info'             =>      'location_info',                            /* Extra information about the location (i.e. "Upstairs on the right") */
-                                'location_name'             =>      'location_text',                            /* The name of the location (i.e. "St. Euphemism RC") */
-                                'location_street'           =>      'location_street',                          /* The street address */
-                                'location_postalcode_1'     =>      'location_postal_code_1',                   /* The postcode/zip code */
+//                              These are values for a standard NAWS export.
+    $conversion_table = array ( // These are straight-ahead translations.
+    
+                                'CommitteeName'             =>      array ( 'meeting_name' => 'NA Meeting' ),   /* Meeting name. Default is English "NA Meeting" */
+                                'Committee'                 =>      'worldid_mixed',                            /* World ID */
+                                'Place'                     =>      'location_text',                            /* The name of the location (i.e. "St. Euphemism RC") */
+                                'Address'                   =>      'location_street',                          /* The street address */
+                                'State'                     =>      'location_province',                        /* State */
+                                'LocBorough'                =>      'location_city_subsection',                 /* The name of the borough */
+                                'City'                      =>      'location_municipality',                    /* Town name */
+                                'Country'                   =>      'location_nation',                          /* The street address */
+                                'Zip'                       =>      'location_postal_code_1',                   /* The postcode/zip code */
+                                'Directions'                =>      'location_info',                            /* Extra information about the location (i.e. "Upstairs on the right") */
                                 'longitude'                 =>      'longitude',                                /* Any existing longitude */
-                                'latitude'                  =>      'latitude'                                  /* Any existing latitude */
+                                'latitude'                  =>      'latitude',                                 /* Any existing latitude */
+
+                                // These are not straight-ahead translations. They need to be interpreted.
+                                
+                                'AreaRegion'                =>      'AreaRegion',                               /* Used to Match the BMLT Service Body to the World Committee Code for the Service Body ("AR1234") */
+                                'Day'                       =>      'WeekdayString',                            /* Used to Match the day of the week. The data needs to be the full weekday, first letter capital, in English (i.e. "Sunday", "Wednesday") */
+                                'Time'                      =>      'SimpleMilitaryTime',                       /* Used to Match the start time (1930 for 7:30PM) */
+                                'Room'                      =>      'RoomInfo',                                 /* Used to get more location info */
+                                'Delete'                    =>      'Delete',                                   /* Just in case they sent us a deleted meeting */
+                                'Institutional'             =>      'Institutional',                            /* Just in case they sent us an H&I meeting */
+                                'Closed'                    =>      array ( 'FormatClosedOpen' => 'CLOSED' ),   /* Whether the meeting is O or C format. Default is closed. */
+                                'WheelChr'                  =>      'FormatWheelchair',                         /* Whether the meeting is WC format, "TRUE" if the meeting supports Wheelchair access. */
+                                'Language1'                 =>      'FormatLanguage1',                          /* An alternate language code (ignored) */
+                                'Language2'                 =>      'FormatLanguage2',                          /* An alternate language code (ignored) */
+                                'Language3'                 =>      'FormatLanguage3',                          /* An alternate language code (ignored) */
+                                'Format1'                   =>      'Format1',                                  /* A NAWS-standard format code */
+                                'Format2'                   =>      'Format2',                                  /* A NAWS-standard format code */
+                                'Format3'                   =>      'Format3',                                  /* A NAWS-standard format code */
+                                'Format4'                   =>      'Format4',                                  /* A NAWS-standard format code */
+                                'Format5'                   =>      'Format5'                                   /* A NAWS-standard format code */
                                 );
     return $conversion_table;
 }
