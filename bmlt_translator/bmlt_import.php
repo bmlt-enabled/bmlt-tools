@@ -762,8 +762,8 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     /***********************************************************************/
     /**
     */
-    function bmlt_build_address ( $row    ///< A meeting data array.
-                            )
+    function bmlt_build_address (   $row    ///< A meeting data array.
+                                )
     {
         $address = '';
         
@@ -1268,15 +1268,49 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     {
         global $region_bias;
         $ret = null;
-        
+
         echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;text-align:center\" colspan=\"2\">Converting meeting $in_count</td></tr>" );
-    
-        $in_one_meeting = bmlt_clean_one_meeting ( $in_one_meeting );
+        
         // We cycle through all the meeting data, and extract that which can be mapped to BMLT context.
         
         if ( $in_one_meeting )
             {
-            $ret = $in_one_meeting;
+            $world_format = false;
+        
+            if (    isset ( $in_one_meeting['AreaRegion'] )
+                &&  isset ( $in_one_meeting['WeekdayString'] )
+                &&  isset ( $in_one_meeting['SimpleMilitaryTime'] ) )
+                {
+                $world_format = true;
+                $ret = bmlt_clean_one_meeting ( $in_one_meeting );
+                }
+            else
+                {
+                $ret = array();
+                
+                if ( isset ( $in_one_meeting['SimpleMilitaryTime'] ) )
+                    {
+                    $in_one_meeting['start_time'] = func_start_time_from_simple_military ( $in_one_meeting['SimpleMilitaryTime'] );
+            
+                    $in_one_meeting['SimpleMilitaryTime'] = NULL;
+                    unset ( $in_one_meeting['SimpleMilitaryTime'] );
+                    }
+                
+                if ( isset ( $in_one_meeting['WeekdayString'] ) )
+                    {
+                    $in_one_meeting['weekday_tinyint'] = func_convert_from_english_full_weekday ( $in_one_meeting['WeekdayString'] );
+
+                    $in_one_meeting['WeekdayString'] = NULL;
+                    unset ( $in_one_meeting['WeekdayString'] );
+                    }
+                
+                if ( isset ( $in_one_meeting['FormatsAsString'] ) )
+                    {
+                    $in_one_meeting['formats'] = bmlt_convert_formats ( $in_one_meeting['FormatsAsString'] );
+                    }
+                    
+                $ret = $in_one_meeting;
+                }
         
             // See if we need to geocode.
             if ( !isset ( $in_one_meeting['longitude'] ) ||  !isset ( $in_one_meeting['latitude'] ) )
