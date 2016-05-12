@@ -49,14 +49,8 @@
 ini_set ( 'auto_detect_line_endings', 1 );      // Always detect line endings.
 define ( '_DEFAULT_ROOT_DIR_', 'main_server' ); // The default names the main directory "main_server".
 
-global $gOutput_level;
-
-// $gOutput_level = 'VERBOSE';
-//$gOutput_level = 'MEDIUM';
-// $gOutput_level = 'MINIMAL';
-
 global $gDays, $g_main_keys, $g_root_dir, $g_server;
-global $region_bias, $service_body_array;
+global $region_bias, $service_body_array, $gOutput_level;
     
 require_once ( dirname ( __FILE__ )."/bmlt_conversion_tables.php" );    // Import our transfer-specific data maps.
 
@@ -83,6 +77,8 @@ else if ( bmlt_get_root_dir() )                 // See if the user has specified
     }
 
 $gOutput_level = 'MEDIUM';
+
+$log_level = 'MEDIUM';
 
 // ...Unless told otherwise... (POST trumps GET)
 if ( isset ( $_POST['log'] ) && trim ( $_POST['log'] ) )
@@ -1211,7 +1207,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             return NULL;
             }
         
-        if ( !trim ( $in_one_meeting['Address'] ) && !trim ( $in_one_meeting['City'] ) && !trim ( $in_one_meeting['State'] ) && !trim ( $in_one_meeting['Time'] ) && (!trim ( strval ( $in_one_meeting['latitude'] ) ) || !trim ( strval ( $in_one_meeting['longitude'] ) )) )
+        if ( !trim ( $in_one_meeting['Address'] ) && !trim ( $in_one_meeting['City'] ) && !trim ( $in_one_meeting['State'] ) && !trim ( $in_one_meeting['Time'] ) && !trim ( $in_one_meeting['WeekdayString'] ) )
             {
             if ( $gOutput_level != 'MINIMAL' )
                 {
@@ -1375,7 +1371,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             {
             $world_format = false;
         
-            if ( isset ( $in_one_meeting['AreaRegion'] )  )
+            if ( isset ( $in_one_meeting['AreaRegion'] ) && $in_one_meeting['AreaRegion']  )
                 {
                 $world_format = true;
                 $in_one_meeting = bmlt_clean_one_meeting ( $in_one_meeting );
@@ -1413,7 +1409,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 
                 $ret = $in_one_meeting;
                 // See if we need to geocode.
-                if ( !isset ( $ret['longitude'] ) || !isset ( $ret['latitude'] ) )
+                if ( !isset ( $ret['longitude'] ) || !isset ( $ret['latitude'] ) || !floatval ( $ret['longitude'] ) || !floatval ( $ret['latitude'] ) )
                     {
                     $address_string = bmlt_build_address ( $ret );
                     
@@ -1430,13 +1426,18 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 
                         if ( $geocoded_result )
                             {
+                            $ret['longitude'] = floatval ( $geocoded_result['result']['longitude'] );
+                            $ret['latitude'] = floatval ( $geocoded_result['result']['latitude'] );
+                
                             if ( isset ( $geocoded_result['result']['partial_geocode'] ) )
                                 {
                                 echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;font-weight:bold;color:blue;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS FOR MEETING $in_count. PLEASE VERIFY THIS LOCATION!</td></tr>\n" );
                                 }
-                            $ret['longitude'] = $geocoded_result['result']['longitude'];
-                            $ret['latitude'] = $geocoded_result['result']['latitude'];
-                
+                            elseif ( $gOutput_level == 'PROLIX' )
+                                {
+                                echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium\">New Long/Lat: ".$ret['longitude'].", ".$ret['latitude']."</td></tr>\n" );
+                                }
+                                
                             if ( array_key_exists ( 'location_postal_code_1', $geocoded_result['result']) )
                                 {
                                 $ret['location_postal_code_1'] = $geocoded_result['result']['location_postal_code_1'];
@@ -1555,7 +1556,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             
             for ( $i = 0; $i < count ( $converted ); $i++ )
                 {
-                $cleaned_meeting = bmlt_convert_one_meeting ( $original[$i], $converted[$i], $count++ );
+                $cleaned_meeting = bmlt_convert_one_meeting ( $original[$i], $converted[$i], $count );
 
                 if ( is_array ( $cleaned_meeting ) && count ( $cleaned_meeting ) )
                     {
@@ -1585,6 +1586,8 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         echo ( "<tr><td colspan=\"3\"><h2>Meeting $count is not valid!</h2></td></tr>\n" );
                         }
                     }
+                
+                $count++;
                 }
             
             echo ( "<tr><td colspan=\"3\">".strval ( $count )." meetings were read from the file.</td></tr>\n" );

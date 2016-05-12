@@ -25,6 +25,11 @@ CHANGELIST
 ***bmlt_translator Version 1.1.0* ** *- TBD*
 
 - Added support for default decoding of standard NAWS dump.
+- Added 4 levels of report:
+    - bmlt_import.php?log=minimal
+    - bmlt_import.php?log=medium (This is default)
+    - bmlt_import.php?log=verbose
+    - bmlt_import.php?log=prolix
 
 ***bmlt_translator Version 1.0.2* ** *-July 31, 2014*
 
