@@ -51,7 +51,6 @@ define ( '_DEFAULT_ROOT_DIR_', 'main_server' ); // The default names the main di
 
 global $gOutput_level;
 
-$gOutput_level = 'PROLIX';
 // $gOutput_level = 'VERBOSE';
 //$gOutput_level = 'MEDIUM';
 // $gOutput_level = 'MINIMAL';
@@ -83,6 +82,23 @@ else if ( bmlt_get_root_dir() )                 // See if the user has specified
     $g_root_dir = trim ( bmlt_get_root_dir() );
     }
 
+$gOutput_level = 'MEDIUM';
+
+// ...Unless told otherwise... (POST trumps GET)
+if ( isset ( $_POST['log'] ) && trim ( $_POST['log'] ) )
+    {
+    $log_level = strtoupper ( trim ( $_POST['log'] ) );	// root_dir needs to be a relative POSIX path to the executing script.
+    }
+else if ( isset ( $_GET['log'] ) && trim ( $_GET['log'] ) )
+    {
+    $log_level = strtoupper ( trim ( $_GET['log'] ) );
+    }
+
+if ( ($log_level == 'MINIMAL') || ($log_level == 'VERBOSE') || ($log_level == 'PROLIX') )
+    {
+    $gOutput_level = $log_level;
+    }
+ 
 $g_root_dir = trim ( $g_root_dir, "/" );    // Remove any trailing slash.
 
 $g_root_dir = dirname ( __FILE__ )."/".$g_root_dir; // Make it an absolute path.
@@ -1190,7 +1206,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     {
         global $service_body_array, $gOutput_level;
         
-        if ( (isset ( $in_one_meeting['Delete'] ) && $in_one_meeting['Delete']) || (isset ( $in_one_meeting['Institutional'] ) && (strtolower($in_one_meeting['Institutional']) == 'true')) )
+        if ( (isset ( $in_one_meeting['Delete'] ) && $in_one_meeting['Delete']) )
             {
             return NULL;
             }
@@ -1216,6 +1232,12 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         
         $in_one_meeting['Delete'] = NULL;
         unset ( $in_one_meeting['Delete'] );
+        
+        if ( isset ( $in_one_meeting['Institutional'] ) && (strtolower($in_one_meeting['Institutional']) == 'true') )
+            {
+            $in_one_meeting['published'] = 0;
+            }
+        
         $in_one_meeting['Institutional'] = NULL;
         unset ( $in_one_meeting['Institutional'] );
         
@@ -1228,11 +1250,12 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             if ( !$name )
                 {
                 echo ( "<tr><td colspan=\"3\" style=\"background-color:red;color:white;font-weight:bold\">This meeting " );
-                $name = trim ( $in_one_meeting['meeting_name'] );
                 
-                if ( $name )
+                $group_name = trim ( $in_one_meeting['meeting_name'] );
+                
+                if ( $group_name )
                     {
-                    echo ( "('$name') " );
+                    echo ( "('$group_name') " );
                     }
                 
                 echo ( "is part of a Service body ($value) that is not known to this server, and will be skipped.</td></tr>" );
@@ -1343,7 +1366,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
 
         if ( $gOutput_level != 'MINIMAL' )
             {
-            echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;text-align:center\" colspan=\"3\">Converting meeting $in_count</td></tr>" );
+            echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;padding-left:1em\" colspan=\"3\">Starting Conversion of Meeting #$in_count</td></tr>" );
             }
         
         // We cycle through all the meeting data, and extract that which can be mapped to BMLT context.
@@ -1383,6 +1406,11 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             
             if ( $in_one_meeting )
                 {
+                if ( !$in_one_meeting['published'] )
+                    {
+                    echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;color:blue;background-color:orange\">This meeting is institutional, so it will be unpublished.</td></tr>\n" );
+                    }
+                
                 $ret = $in_one_meeting;
                 // See if we need to geocode.
                 if ( !isset ( $ret['longitude'] ) || !isset ( $ret['latitude'] ) )
@@ -1404,7 +1432,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                             {
                             if ( isset ( $geocoded_result['result']['partial_geocode'] ) )
                                 {
-                                echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS FOR MEETING $in_count. PLEASE VERIFY THIS LOCATION!</td></tr>\n" );
+                                echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;font-weight:bold;color:blue;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS FOR MEETING $in_count. PLEASE VERIFY THIS LOCATION!</td></tr>\n" );
                                 }
                             $ret['longitude'] = $geocoded_result['result']['longitude'];
                             $ret['latitude'] = $geocoded_result['result']['latitude'];
@@ -1439,7 +1467,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         else
                             {
                             $ret['published'] = 0;
-                            echo ( "<tr><td colspan=\"3\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE FOR MEETING $in_count!</td></tr>\n" );
+                            echo ( "<tr><td colspan=\"3\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE FOR MEETING $in_count! BAD ADDRESS: '$address_string'</td></tr>\n" );
                             }
                         }
                     else
@@ -1448,38 +1476,45 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         echo ( "<tr><td colspan=\"3\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE FOR MEETING $in_count! CAN'T CREATE ADDRESS!</td></tr>\n" );
                         }
                     }
-                elseif ( $gOutput_level != 'MINIMAL' )
+                elseif ( ($gOutput_level == 'PROLIX') || ($gOutput_level == 'VERBOSE') )
                     {
                     echo ( "<tr><td colspan=\"3\">This already has a long/lat. No need to geocode</td></tr>\n" );
                     }
-        
+                
+                $background = '';
+                
+                if ( !$ret['published'] )
+                    {
+                    $background = ";background-color:orange";
+                    }
+                
                 if ( $gOutput_level != 'MINIMAL' )
                     {
                     echo ( '<tr>' );
-                    echo ( '<td style="width:34%;border-bottom:2px solid black;font-weight:bold;font-size:large">' );
-                    echo ( 'Input' );
+                    echo ( "<td style=\"width:34%;border-bottom:2px solid black;font-weight:bold;font-size:large$background\">" );
+                    echo ( 'Read From File' );
                     echo ( '</td>' );
-                    echo ( '<td style="width:33%;border-bottom:2px solid black;font-weight:bold;font-size:large">' );
+                    echo ( "<td style=\"width:33%;border-bottom:2px solid black;font-weight:bold;font-size:large$background\">" );
                     if ( ($gOutput_level == 'PROLIX') || ($gOutput_level == 'VERBOSE') )
                         {
                         echo ( 'Converted' );
                         }
                     echo ( '</td>' );
-                    echo ( '<td style="width:34%;border-bottom:2px solid black;font-weight:bold;font-size:large">' );
-                    echo ( 'Output' );
+                    echo ( "<td style=\"width:34%;border-bottom:2px solid black;font-weight:bold;font-size:large$background\">" );
+                    echo ( 'Stored in Database' );
                     echo ( '</td>' );
                     echo ( "</tr>\n" );
                     echo ( '<tr>' );
-                    echo ( '<td style="vertical-align:top">' );
+                    echo ( "<td style=\"vertical-align:top$background\">" );
                     echo ( '<pre>'.htmlspecialchars ( print_r ( $in_original_data, true ) ).'</pre>' );
                     echo ( '</td>' );
-                    echo ( '<td style="vertical-align:top">' );
+                    echo ( "<td style=\"vertical-align:top$background\">" );
                     if ( ($gOutput_level == 'PROLIX') || ($gOutput_level == 'VERBOSE') )
                         {
                         echo ( '<pre>'.htmlspecialchars ( print_r ( $in_one_meeting, true ) ).'</pre>' );
                         }
                     echo ( '</td>' );
-                    echo ( '<td style="vertical-align:top">' );
+                    echo ( "<td style=\"vertical-align:top$background\">" );
                     echo ( '<pre>'.htmlspecialchars ( print_r ( $ret, true ) ).'</pre>' );
                     echo ( '</td>' );
                     echo ( "</tr>\n" );
@@ -1487,7 +1522,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 }
             elseif ( $gOutput_level != 'MINIMAL' )
                 {
-                echo ( "<tr><td colspan=\"3\">This meeting is deleted, institutional, or too corrupted to convert.</td></tr>\n" );
+                echo ( "<tr><td colspan=\"3\" style=\"background-color:red;color:white;padding-left:1em\">This meeting is deleted or too corrupted to convert.</td></tr>\n" );
                 }
             }
         
@@ -1513,16 +1548,31 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             echo ( '<h2>Converting the meetings to BMLT format.</h2>' );
             echo ( '<table cellpadding="0" cellspacing="0" border="0" style="border:none;width:100%">'."\n" );
             $count = 1;
+            $count_published = 0;
+            $count_unpublished = 0;
             $original = $data['original'];
             $converted = $data['converted'];
             
             for ( $i = 0; $i < count ( $converted ); $i++ )
                 {
-                $cleaned_meeting = bmlt_convert_one_meeting ( $original[$i], $converted[$i], $count );
+                $cleaned_meeting = bmlt_convert_one_meeting ( $original[$i], $converted[$i], $count++ );
+
                 if ( is_array ( $cleaned_meeting ) && count ( $cleaned_meeting ) )
                     {
                     $ret = bmlt_add_meeting_to_database ( $cleaned_meeting, $templates )."\n";
-                
+                    
+                    if ( $ret )
+                        {
+                        if ( $cleaned_meeting['published'] )
+                            {
+                            $count_published++;
+                            }
+                        else
+                            {
+                            $count_unpublished++;
+                            }
+                        }
+                    
                     if ( $gOutput_level == 'PROLIX' )
                         {
                         echo ( "<tr><td colspan=\"3\">".($ret ? "Meeting ID $ret Successfully Stored in DB" : 'Not Stored in DB' )."</td></tr>\n" );
@@ -1535,8 +1585,27 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         echo ( "<tr><td colspan=\"3\"><h2>Meeting $count is not valid!</h2></td></tr>\n" );
                         }
                     }
-                $count++;
                 }
+            
+            echo ( "<tr><td colspan=\"3\">".strval ( $count )." meetings were read from the file.</td></tr>\n" );
+            
+            if ( $count - ($count_published + $count_unpublished) )
+                {
+                echo ( "<tr><td colspan=\"3\">".strval ( $count - ($count_published + $count_unpublished) )." meetings were skipped, and not stored in the database.</td></tr>\n" );
+                }
+            
+            echo ( "<tr><td colspan=\"3\">".strval ( $count_published + $count_unpublished )." meetings were successfully stored in the database.</td></tr>\n" );
+                
+            if ( $count_published )
+                {
+                echo ( "<tr><td colspan=\"3\">".strval ( $count_published )." of those meetings were published.</td></tr>\n" );
+                }
+            
+            if ( $count_unpublished )
+                {
+                echo ( "<tr><td colspan=\"3\">".strval ( $count_unpublished )." of those meetings were unpublished.</td></tr>\n" );
+                }
+
             echo ( "</table>\n" );
             }
         else

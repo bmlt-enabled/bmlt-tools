@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:3306
--- Generation Time: May 11, 2016 at 05:29 PM
+-- Generation Time: May 12, 2016 at 04:38 PM
 -- Server version: 5.5.42
 -- PHP Version: 7.0.0
 
@@ -43,7 +43,7 @@ CREATE TABLE `na_comdef_changes` (
   `change_type_enum` varchar(32) NOT NULL,
   `before_object` blob,
   `after_object` blob
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -288,7 +288,7 @@ CREATE TABLE `na_comdef_meetings_main` (
   `latitude` double DEFAULT NULL,
   `published` tinyint(4) NOT NULL DEFAULT '0',
   `email_contact` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -363,29 +363,29 @@ CREATE TABLE `na_comdef_users` (
 --
 
 INSERT INTO `na_comdef_users` (`id_bigint`, `user_level_tinyint`, `name_string`, `description_string`, `email_address_string`, `login_string`, `password_string`, `last_access_datetime`, `lang_enum`) VALUES
-(1, 1, 'Server Administrator', 'Main Server Administrator', '', 'godadmin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1999-11-30 00:00:00', 'en'),
-(2, 2, 'Show Me Regional Administrator', '', '', 'rsc-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
-(3, 2, 'St. Louis Area Admin', '', '', 'stl-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
-(4, 2, 'St. Charles Area Admin', '', '', 'stc-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
-(5, 2, 'Metro East Area Admin', '', '', 'metro-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
-(6, 2, 'Mid-East Missouri Area Admin', '', '', 'mem-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
-(7, 2, 'United Kansas City Area Admin', '', '', 'ukc-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(8, 2, 'Heartland Area Admin', '', '', 'heart-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(9, 2, 'Northland Area Admin', '', '', 'northland-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(10, 2, 'West-Central Missouri Area Admin', '', '', 'wcm-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
-(11, 2, 'Southwest Area Admin', '', '', 'sw-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(12, 2, 'Mid-Missouri Area Admin', '', '', 'mm-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(13, 2, 'Primary Purpose Area Admin', '', '', 'pp-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(14, 2, 'Ozark Area Admin', '', '', 'ozark-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(15, 2, 'South-Central Missouri Area Admin', '', '', 'scm-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(16, 2, 'Mo-Kan Area Admin', '', '', 'mokan-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(17, 2, 'Down Home Ozark Mountain Area Admin', '', '', 'dhom-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(18, 2, 'South East Missouri Area Admin', '', '', 'sem-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(19, 2, 'Central Ozark Area Admin', '', '', 'cozark-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(20, 2, 'Quincy Area Admin', '', '', 'quincy-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(21, 2, 'Little Egypt Area Admin', '', '', 'egypt-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
-(22, 5, 'Show Me Region Observer', '', '', 'showme-observer', '$1$VF8g7Mlr$S9TGTWQl7e6pFk4NWbNjA.', '1969-12-31 18:00:00', 'en'),
-(23, 5, 'St. Louis ASC Observer', '', '', 'stl-observer', '$1$.qE9wsAb$FgVda4vzg85JeNa/ozl.51', '1969-12-31 18:00:00', 'en');
+(1, 1, 'Server Administrator', 'Main Server Administrator', 'Enter An Email Address', 'godadmin', 'goKawBy5lmKco', '1999-11-30 00:00:00', 'en'),
+(2, 2, 'Show Me Regional Administrator', '', '', 'rsc-admin', 'goKawBy5lmKco', '1969-12-31 19:32:49', 'en'),
+(3, 2, 'St. Louis Area Admin', '', '', 'stl-admin', 'goKawBy5lmKco', '1969-12-31 19:32:49', 'en'),
+(4, 2, 'St. Charles Area Admin', '', '', 'stc-admin', 'goKawBy5lmKco', '1969-12-31 19:32:49', 'en'),
+(5, 2, 'Metro East Area Admin', '', '', 'metro-admin', 'goKawBy5lmKco', '1969-12-31 19:32:49', 'en'),
+(6, 2, 'Mid-East Missouri Area Admin', '', '', 'mem-admin', 'goKawBy5lmKco', '1969-12-31 19:32:49', 'en'),
+(7, 2, 'United Kansas City Area Admin', '', '', 'ukc-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(8, 2, 'Heartland Area Admin', '', '', 'heart-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(9, 2, 'Northland Area Admin', '', '', 'northland-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(10, 2, 'West-Central Missouri Area Admin', '', '', 'wcm-admin', 'goKawBy5lmKco', '1969-12-31 19:32:49', 'en'),
+(11, 2, 'Southwest Area Admin', '', '', 'sw-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(12, 2, 'Mid-Missouri Area Admin', '', '', 'mm-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(13, 2, 'Primary Purpose Area Admin', '', '', 'pp-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(14, 2, 'Ozark Area Admin', '', '', 'ozark-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(15, 2, 'South-Central Missouri Area Admin', '', '', 'scm-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(16, 2, 'Mo-Kan Area Admin', '', '', 'mokan-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(17, 2, 'Down Home Ozark Mountain Area Admin', '', '', 'dhom-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(18, 2, 'South East Missouri Area Admin', '', '', 'sem-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(19, 2, 'Central Ozark Area Admin', '', '', 'cozark-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(20, 2, 'Quincy Area Admin', '', '', 'quincy-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(21, 2, 'Little Egypt Area Admin', '', '', 'egypt-admin', 'goKawBy5lmKco', '1969-12-31 19:00:00', 'en'),
+(22, 5, 'Show Me Region Observer', '', '', 'showme-observer', 'goKawBy5lmKco', '1969-12-31 18:00:00', 'en'),
+(23, 5, 'St. Louis ASC Observer', '', '', 'stl-observer', 'goKawBy5lmKco', '1969-12-31 18:00:00', 'en');
 
 --
 -- Indexes for dumped tables
@@ -491,12 +491,12 @@ ALTER TABLE `na_comdef_users`
 -- AUTO_INCREMENT for table `na_comdef_changes`
 --
 ALTER TABLE `na_comdef_changes`
-  MODIFY `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
+  MODIFY `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `na_comdef_meetings_main`
 --
 ALTER TABLE `na_comdef_meetings_main`
-  MODIFY `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
+  MODIFY `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `na_comdef_service_bodies`
 --
