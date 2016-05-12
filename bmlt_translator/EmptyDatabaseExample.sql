@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.6
+-- version 4.4.10
 -- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: Jun 18, 2014 at 06:42 AM
--- Server version: 5.5.33
--- PHP Version: 5.5.3
+-- Host: localhost:3306
+-- Generation Time: May 11, 2016 at 05:29 PM
+-- Server version: 5.5.42
+-- PHP Version: 7.0.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -14,10 +14,10 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-/* NOTE: The user password for all users in this database is 'showmethemoney' */
+/*!40101 SET NAMES utf8mb4 */;
+
 --
--- Database: `magshare_showm`
+-- Database: `littlegr_showme-bmlt`
 --
 
 -- --------------------------------------------------------
@@ -27,8 +27,8 @@ SET time_zone = "+00:00";
 --
 
 DROP TABLE IF EXISTS `na_comdef_changes`;
-CREATE TABLE IF NOT EXISTS `na_comdef_changes` (
-  `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE `na_comdef_changes` (
+  `id_bigint` bigint(20) unsigned NOT NULL,
   `user_id_bigint` bigint(20) unsigned NOT NULL,
   `service_body_id_bigint` bigint(20) unsigned NOT NULL,
   `lang_enum` varchar(7) NOT NULL,
@@ -42,25 +42,9 @@ CREATE TABLE IF NOT EXISTS `na_comdef_changes` (
   `after_lang_enum` varchar(7) DEFAULT NULL,
   `change_type_enum` varchar(32) NOT NULL,
   `before_object` blob,
-  `after_object` blob,
-  PRIMARY KEY (`id_bigint`),
-  KEY `user_id_bigint` (`user_id_bigint`),
-  KEY `service_body_id_bigint` (`service_body_id_bigint`),
-  KEY `lang_enum` (`lang_enum`),
-  KEY `change_type_enum` (`change_type_enum`),
-  KEY `change_date` (`change_date`),
-  KEY `before_id_bigint` (`before_id_bigint`),
-  KEY `after_id_bigint` (`after_id_bigint`),
-  KEY `before_lang_enum` (`before_lang_enum`),
-  KEY `after_lang_enum` (`after_lang_enum`),
-  KEY `object_class_string` (`object_class_string`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  `after_object` blob
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
---
--- Truncate table before insert `na_comdef_changes`
---
-
-TRUNCATE TABLE `na_comdef_changes`;
 -- --------------------------------------------------------
 
 --
@@ -68,7 +52,7 @@ TRUNCATE TABLE `na_comdef_changes`;
 --
 
 DROP TABLE IF EXISTS `na_comdef_formats`;
-CREATE TABLE IF NOT EXISTS `na_comdef_formats` (
+CREATE TABLE `na_comdef_formats` (
   `shared_id_bigint` bigint(20) unsigned NOT NULL,
   `key_string` varchar(255) DEFAULT NULL,
   `icon_blob` longblob,
@@ -76,19 +60,9 @@ CREATE TABLE IF NOT EXISTS `na_comdef_formats` (
   `lang_enum` varchar(7) NOT NULL DEFAULT 'en',
   `name_string` tinytext,
   `description_string` text,
-  `format_type_enum` varchar(7) DEFAULT 'FC1',
-  KEY `shared_id_bigint` (`shared_id_bigint`),
-  KEY `worldid_mixed` (`worldid_mixed`),
-  KEY `format_type_enum` (`format_type_enum`),
-  KEY `lang_enum` (`lang_enum`),
-  KEY `key_string` (`key_string`)
+  `format_type_enum` varchar(7) DEFAULT 'FC1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Truncate table before insert `na_comdef_formats`
---
-
-TRUNCATE TABLE `na_comdef_formats`;
 --
 -- Dumping data for table `na_comdef_formats`
 --
@@ -117,7 +91,6 @@ INSERT INTO `na_comdef_formats` (`shared_id_bigint`, `key_string`, `icon_blob`, 
 (21, 'SC', NULL, NULL, 'en', 'Surveillance Cameras', 'This meeting is held in a facility that has surveillance cameras.', 'FC2'),
 (22, 'SD', NULL, 'SPK', 'en', 'Speaker/Discussion', 'This meeting is lead by a speaker, then opened for participation by attendees.', 'FC1'),
 (23, 'SG', NULL, 'SWG', 'en', 'Step Working Guide', 'This meeting is focused on discussion of the Step Working Guide text.', 'FC1'),
-(24, 'SL', NULL, NULL, 'en', 'ASL', 'This meeting provides an American Sign Language (ASL) interpreter for the deaf.', 'FC2'),
 (26, 'So', NULL, 'SPK', 'en', 'Speaker Only', 'This meeting is a speaker-only meeting. Other attendees do not participate in the discussion.', 'FC1'),
 (27, 'St', NULL, 'STEP', 'en', 'Step', 'This meeting is focused on discussion of the Twelve Steps of NA.', 'FC1'),
 (28, 'Ti', NULL, NULL, 'en', 'Timer', 'This meeting has sharing time limited by a timer.', 'FC1'),
@@ -166,7 +139,6 @@ INSERT INTO `na_comdef_formats` (`shared_id_bigint`, `key_string`, `icon_blob`, 
 (21, 'SC', NULL, NULL, 'es', 'Cámaras de Vigilancia', 'Esta reunión se celebra en una localidad que tenga cámaras de vigilancia.', 'FC2'),
 (22, 'SD', NULL, 'SPK', 'es', 'Orador/Discusión', 'Esta reunión es conducida por un orador, después es abierta para la participación de los asistentes.', 'FC1'),
 (23, 'SG', NULL, 'SWG', 'es', 'Guia Para Trabajar los Pasos', 'Esta reunión se centra en la discusión del texto Guia Para Trabajar los Pasos.', 'FC1'),
-(24, 'SL', NULL, NULL, 'es', 'ASL', 'Esta reunión proporciona intérprete (ASL) para los sordos.', 'FC2'),
 (26, 'So', NULL, 'SPK', 'es', 'Solamente Orador', 'Esta reunión es de orador solamente. Otros asistentes no participan en la discusión.', 'FC1'),
 (27, 'St', NULL, 'STEP', 'es', 'Paso', 'Esta reunión se centra en la discusión de los doce pasos de NA.', 'FC1'),
 (28, 'Ti', NULL, NULL, 'es', 'Contador de Tiempo', 'Esta reunión tiene el tiempo de compartir limitado por un contador de tiempo.', 'FC1'),
@@ -207,7 +179,6 @@ INSERT INTO `na_comdef_formats` (`shared_id_bigint`, `key_string`, `icon_blob`, 
 (21, 'SC', NULL, NULL, 'fr', 'Caméra de surveillance', 'Cette réunion se tient dans un emplacement qui a des caméras de surveillance.', 'FC2'),
 (22, 'SD', NULL, 'SPK', 'fr', 'Partage et ouvert', 'Cette réunion a un conférencier, puis ouvert au public.', 'FC1'),
 (23, 'SG', NULL, 'SWG', 'fr', 'Guides des Étapes', 'Cette réunion est axée sur la discussion sur le Guide des Étapes.', 'FC1'),
-(24, 'SL', NULL, NULL, 'fr', 'Malentendants', 'Cette rencontre permet l''interprète pour les personnes malentendantes.', 'FC2'),
 (26, 'So', NULL, 'SPK', 'fr', 'Partage seulement', 'Cette réunion a seulement un conférencier. Les autres participants ne participent pas à la discussion.', 'FC1'),
 (27, 'St', NULL, 'STEP', 'fr', 'Étapes NA', 'Cette réunion est axée sur la discussion des Douze Étapes de NA.', 'FC1'),
 (28, 'Ti', NULL, NULL, 'fr', 'Discussion chronométrée', 'Cette réunion a une durée de discussion  limitée par une minuterie pour chaque personne.', 'FC1'),
@@ -230,7 +201,10 @@ INSERT INTO `na_comdef_formats` (`shared_id_bigint`, `key_string`, `icon_blob`, 
 (45, 'CP', NULL, 'CPT', 'fr', 'Concepts', 'Cette réunion est axée sur la discussion des douze concepts de NA.', 'FC1'),
 (46, 'Finlandais', NULL, NULL, 'fr', 'Finlandais', 'Cette réunion se déroule en langue finlandaisè', 'FC3'),
 (47, 'ENG', NULL, NULL, 'fr', 'Anglais', 'Cette réunion se déroule de langues anglais.', 'FC3'),
-(50, 'WEB', NULL, NULL, 'fr', 'Internet', 'Il s''agit d''une réunion qui se déroule sur Internet.', 'FC2');
+(50, 'WEB', NULL, NULL, 'fr', 'Internet', 'Il s''agit d''une réunion qui se déroule sur Internet.', 'FC2'),
+(24, 'SL', NULL, NULL, 'en', 'ASL', 'This meeting provides an American Sign Language (ASL) interpreter for the deaf.', 'FC2'),
+(24, 'SL', NULL, NULL, 'es', 'ASL', 'Esta reunión proporciona intérprete (ASL) para los sordos.', 'FC2'),
+(24, 'SL', NULL, NULL, 'fr', 'Malentendants', 'Cette rencontre permet l''interprète pour les personnes malentendantes.', 'FC2');
 
 -- --------------------------------------------------------
 
@@ -239,7 +213,7 @@ INSERT INTO `na_comdef_formats` (`shared_id_bigint`, `key_string`, `icon_blob`, 
 --
 
 DROP TABLE IF EXISTS `na_comdef_meetings_data`;
-CREATE TABLE IF NOT EXISTS `na_comdef_meetings_data` (
+CREATE TABLE `na_comdef_meetings_data` (
   `meetingid_bigint` bigint(20) unsigned NOT NULL,
   `key` varchar(32) NOT NULL,
   `field_prompt` tinytext,
@@ -247,20 +221,9 @@ CREATE TABLE IF NOT EXISTS `na_comdef_meetings_data` (
   `visibility` int(1) DEFAULT NULL,
   `data_string` tinytext,
   `data_bigint` bigint(20) DEFAULT NULL,
-  `data_double` double DEFAULT NULL,
-  KEY `data_bigint` (`data_bigint`),
-  KEY `data_double` (`data_double`),
-  KEY `meetingid_bigint` (`meetingid_bigint`),
-  KEY `lang_enum` (`lang_enum`),
-  KEY `key` (`key`),
-  KEY `visibility` (`visibility`)
+  `data_double` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Truncate table before insert `na_comdef_meetings_data`
---
-
-TRUNCATE TABLE `na_comdef_meetings_data`;
 --
 -- Dumping data for table `na_comdef_meetings_data`
 --
@@ -294,26 +257,16 @@ INSERT INTO `na_comdef_meetings_data` (`meetingid_bigint`, `key`, `field_prompt`
 --
 
 DROP TABLE IF EXISTS `na_comdef_meetings_longdata`;
-CREATE TABLE IF NOT EXISTS `na_comdef_meetings_longdata` (
+CREATE TABLE `na_comdef_meetings_longdata` (
   `meetingid_bigint` bigint(20) unsigned NOT NULL,
   `key` varchar(32) NOT NULL,
   `field_prompt` varchar(255) DEFAULT NULL,
   `lang_enum` varchar(7) DEFAULT NULL,
   `visibility` int(1) DEFAULT NULL,
   `data_longtext` text,
-  `data_blob` blob,
-  KEY `meetingid_bigint` (`meetingid_bigint`),
-  KEY `lang_enum` (`lang_enum`),
-  KEY `field_prompt` (`field_prompt`),
-  KEY `key` (`key`),
-  KEY `visibility` (`visibility`)
+  `data_blob` blob
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Truncate table before insert `na_comdef_meetings_longdata`
---
-
-TRUNCATE TABLE `na_comdef_meetings_longdata`;
 -- --------------------------------------------------------
 
 --
@@ -321,8 +274,8 @@ TRUNCATE TABLE `na_comdef_meetings_longdata`;
 --
 
 DROP TABLE IF EXISTS `na_comdef_meetings_main`;
-CREATE TABLE IF NOT EXISTS `na_comdef_meetings_main` (
-  `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE `na_comdef_meetings_main` (
+  `id_bigint` bigint(20) unsigned NOT NULL,
   `worldid_mixed` varchar(255) DEFAULT NULL,
   `shared_group_id_bigint` bigint(20) DEFAULT NULL,
   `service_body_bigint` bigint(20) unsigned NOT NULL,
@@ -334,27 +287,9 @@ CREATE TABLE IF NOT EXISTS `na_comdef_meetings_main` (
   `longitude` double DEFAULT NULL,
   `latitude` double DEFAULT NULL,
   `published` tinyint(4) NOT NULL DEFAULT '0',
-  `email_contact` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id_bigint`),
-  KEY `weekday_tinyint` (`weekday_tinyint`),
-  KEY `service_body_bigint` (`service_body_bigint`),
-  KEY `start_time` (`start_time`),
-  KEY `duration_time` (`duration_time`),
-  KEY `formats` (`formats`),
-  KEY `lang_enum` (`lang_enum`),
-  KEY `worldid_mixed` (`worldid_mixed`),
-  KEY `shared_group_id_bigint` (`shared_group_id_bigint`),
-  KEY `longitude` (`longitude`),
-  KEY `latitude` (`latitude`),
-  KEY `published` (`published`),
-  KEY `email_contact` (`email_contact`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  `email_contact` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
---
--- Truncate table before insert `na_comdef_meetings_main`
---
-
-TRUNCATE TABLE `na_comdef_meetings_main`;
 -- --------------------------------------------------------
 
 --
@@ -362,8 +297,8 @@ TRUNCATE TABLE `na_comdef_meetings_main`;
 --
 
 DROP TABLE IF EXISTS `na_comdef_service_bodies`;
-CREATE TABLE IF NOT EXISTS `na_comdef_service_bodies` (
-  `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE `na_comdef_service_bodies` (
+  `id_bigint` bigint(20) unsigned NOT NULL,
   `name_string` tinytext NOT NULL,
   `description_string` text NOT NULL,
   `lang_enum` varchar(7) NOT NULL DEFAULT 'en',
@@ -375,43 +310,34 @@ CREATE TABLE IF NOT EXISTS `na_comdef_service_bodies` (
   `sb_type` varchar(32) DEFAULT NULL,
   `sb_owner` bigint(20) unsigned DEFAULT NULL,
   `sb_owner_2` bigint(20) unsigned DEFAULT NULL,
-  `sb_meeting_email` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id_bigint`),
-  KEY `worldid_mixed` (`worldid_mixed`),
-  KEY `kml_file_uri_string` (`kml_file_uri_string`),
-  KEY `principal_user_bigint` (`principal_user_bigint`),
-  KEY `editors_string` (`editors_string`),
-  KEY `lang_enum` (`lang_enum`),
-  KEY `uri_string` (`uri_string`),
-  KEY `sb_type` (`sb_type`),
-  KEY `sb_owner` (`sb_owner`),
-  KEY `sb_owner_2` (`sb_owner_2`),
-  KEY `sb_meeting_email` (`sb_meeting_email`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  `sb_meeting_email` varchar(255) NOT NULL DEFAULT ''
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 
---
--- Truncate table before insert `na_comdef_service_bodies`
---
-
-TRUNCATE TABLE `na_comdef_service_bodies`;
 --
 -- Dumping data for table `na_comdef_service_bodies`
 --
 
 INSERT INTO `na_comdef_service_bodies` (`id_bigint`, `name_string`, `description_string`, `lang_enum`, `worldid_mixed`, `kml_file_uri_string`, `principal_user_bigint`, `editors_string`, `uri_string`, `sb_type`, `sb_owner`, `sb_owner_2`, `sb_meeting_email`) VALUES
-(1, 'Show Me Region', '', 'en', '', '', 2, '0', 'http://showmeregionna.org/', 'RS', 0, 0, 'cmarshall@mac.com'),
-(2, 'St. Louis Area', '', 'en', NULL, '', 2, '3', '', 'AS', 1, 0, ''),
-(3, 'St. Charles Area', '', 'en', NULL, '', 2, '4', '', 'AS', 1, 0, ''),
-(4, 'Metro East Area', '', 'en', NULL, '', 2, '5', '', 'AS', 1, 0, ''),
-(5, 'Mid-East Missouri Area', '', 'en', NULL, '', 2, '6', '', 'AS', 1, 0, ''),
-(6, 'United Kansas City Area', '', 'en', NULL, '', 2, '7', '', 'AS', 1, 0, ''),
-(7, 'Heartland Area', '', 'en', NULL, '', 2, '8', '', 'AS', 1, 0, ''),
-(8, 'Northland Area', '', 'en', NULL, '', 2, '9', '', 'AS', 1, 0, ''),
-(9, 'West-Central Missouri Area', '', 'en', NULL, '', 2, '10', '', 'AS', 1, 0, ''),
-(10, 'Southwest Area', '', 'en', NULL, '', 2, '11', '', 'AS', 1, 0, ''),
-(11, 'Mid-Missouri Area', '', 'en', NULL, '', 2, '12', '', 'AS', 1, 0, ''),
-(12, 'Primary Purpose Area', '', 'en', NULL, '', 2, '13', '', 'AS', 1, 0, ''),
-(13, 'Ozark Area', '', 'en', NULL, '', 2, '14', '', 'AS', 1, 0, '');
+(1, 'Show Me Region', '', 'en', 'RG616', '', 2, '22', 'http://showmeregionna.org/', 'RS', 0, 0, 'cmarshall@mac.com'),
+(2, 'St. Louis Area', '', 'en', 'AR61604', '', 2, '3,23', 'http://stlna.org/', 'AS', 1, 0, ''),
+(3, 'St. Charles Area', '', 'en', 'AR61601', '', 2, '4', '', 'AS', 1, 0, ''),
+(4, 'Metro East Area', '', 'en', 'AR61614', '', 2, '5', '', 'AS', 1, 0, ''),
+(5, 'Mid-East Missouri Area', '', 'en', 'AR61620', '', 2, '6', '', 'AS', 1, 0, ''),
+(6, 'United Kansas City Area', '', 'en', 'AR61628', '', 2, '7', '', 'AS', 1, 0, ''),
+(7, 'Heartland Area', '', 'en', 'AR61606', '', 2, '8', '', 'AS', 1, 0, ''),
+(8, 'Northland Area', '', 'en', 'AR61618', '', 2, '9', '', 'AS', 1, 0, ''),
+(9, 'West-Central Missouri Area', '', 'en', 'AR61630', '', 2, '10', '', 'AS', 1, 0, ''),
+(10, 'Southwest Area', '', 'en', 'AR61625', '', 2, '11', '', 'AS', 1, 0, ''),
+(11, 'Mid-Missouri Area', '', 'en', 'AR61616', '', 2, '12', '', 'AS', 1, 0, ''),
+(12, 'Primary Purpose Area', '', 'en', 'AR61624', '', 2, '13', '', 'AS', 1, 0, ''),
+(13, 'Ozark Area', '', 'en', 'AR61619', '', 2, '14', '', 'AS', 1, 0, ''),
+(14, 'South-Central Missouri Area', '', 'en', 'AR61626', '', 2, '15', '', 'AS', 1, 0, ''),
+(15, 'Mo-Kan Area', '', 'en', 'AR61617', '', 2, '16', '', 'AS', 1, 0, ''),
+(16, 'Down Home Ozark Mountain Area', '', 'en', 'AR61622', '', 2, '17', '', 'AS', 1, 0, ''),
+(17, 'South East Missouri Area', '', 'en', 'AR61623', '', 2, '18', '', 'AS', 1, 0, ''),
+(18, 'Central Ozark Area', '', 'en', 'AR61603', '', 2, '19', '', 'AS', 1, 0, ''),
+(19, 'Quincy Area', '', 'en', 'AR61621', '', 2, '20', '', 'AS', 1, 0, ''),
+(20, 'Little Egypt Area', '', 'en', 'AR61613', '', 2, '21', '', 'AS', 1, 0, '');
 
 -- --------------------------------------------------------
 
@@ -420,8 +346,8 @@ INSERT INTO `na_comdef_service_bodies` (`id_bigint`, `name_string`, `description
 --
 
 DROP TABLE IF EXISTS `na_comdef_users`;
-CREATE TABLE IF NOT EXISTS `na_comdef_users` (
-  `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE `na_comdef_users` (
+  `id_bigint` bigint(20) unsigned NOT NULL,
   `user_level_tinyint` tinyint(4) unsigned NOT NULL DEFAULT '0',
   `name_string` tinytext NOT NULL,
   `description_string` text NOT NULL,
@@ -429,40 +355,158 @@ CREATE TABLE IF NOT EXISTS `na_comdef_users` (
   `login_string` varchar(255) NOT NULL,
   `password_string` varchar(255) NOT NULL,
   `last_access_datetime` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `lang_enum` varchar(7) NOT NULL DEFAULT 'en',
-  PRIMARY KEY (`id_bigint`),
-  UNIQUE KEY `login_string` (`login_string`),
-  KEY `user_level_tinyint` (`user_level_tinyint`),
-  KEY `email_address_string` (`email_address_string`),
-  KEY `last_access_datetime` (`last_access_datetime`),
-  KEY `lang_enum` (`lang_enum`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  `lang_enum` varchar(7) NOT NULL DEFAULT 'en'
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 
---
--- Truncate table before insert `na_comdef_users`
---
-
-TRUNCATE TABLE `na_comdef_users`;
 --
 -- Dumping data for table `na_comdef_users`
 --
 
 INSERT INTO `na_comdef_users` (`id_bigint`, `user_level_tinyint`, `name_string`, `description_string`, `email_address_string`, `login_string`, `password_string`, `last_access_datetime`, `lang_enum`) VALUES
-(1, 1, 'Server Administrator', '', '', 'serveradmin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1999-11-30 00:00:00', 'en'),
-(2, 2, 'Show Me Regional Administrator', '', '', 'rsc-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(3, 2, 'St. Louis Area Admin', '', '', 'stl-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(4, 2, 'St. Charles Area Admin', '', '', 'stc-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(5, 2, 'Metro East Area Admin', '', '', 'metro-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(6, 2, 'Mid-East Missouri Area Admin', '', '', 'mem-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(7, 2, 'United Kansas City Area Admin', '', '', 'ukc-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(8, 2, 'Heartland Area Admin', '', '', 'heart-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(9, 2, 'Northland Area Admin', '', '', 'northland-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(10, 2, 'West-Central Missouri Area Admin', '', '', 'wcm-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(11, 2, 'Southwest Area Admin', '', '', 'sw-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(12, 2, 'Mid-Missouri Area Admin', '', '', 'mm-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(13, 2, 'Primary Purpose Area Admin', '', '', 'pp-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en'),
-(14, 2, 'Ozark Area Admin', '', '', 'ozark-admin', '$1$X23.fFv2$yop5hpFyHirOQUPuDqyyk0', '1969-12-31 19:32:49', 'en');
+(1, 1, 'Server Administrator', 'Main Server Administrator', '', 'godadmin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1999-11-30 00:00:00', 'en'),
+(2, 2, 'Show Me Regional Administrator', '', '', 'rsc-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
+(3, 2, 'St. Louis Area Admin', '', '', 'stl-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
+(4, 2, 'St. Charles Area Admin', '', '', 'stc-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
+(5, 2, 'Metro East Area Admin', '', '', 'metro-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
+(6, 2, 'Mid-East Missouri Area Admin', '', '', 'mem-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
+(7, 2, 'United Kansas City Area Admin', '', '', 'ukc-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(8, 2, 'Heartland Area Admin', '', '', 'heart-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(9, 2, 'Northland Area Admin', '', '', 'northland-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(10, 2, 'West-Central Missouri Area Admin', '', '', 'wcm-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:32:49', 'en'),
+(11, 2, 'Southwest Area Admin', '', '', 'sw-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(12, 2, 'Mid-Missouri Area Admin', '', '', 'mm-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(13, 2, 'Primary Purpose Area Admin', '', '', 'pp-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(14, 2, 'Ozark Area Admin', '', '', 'ozark-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(15, 2, 'South-Central Missouri Area Admin', '', '', 'scm-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(16, 2, 'Mo-Kan Area Admin', '', '', 'mokan-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(17, 2, 'Down Home Ozark Mountain Area Admin', '', '', 'dhom-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(18, 2, 'South East Missouri Area Admin', '', '', 'sem-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(19, 2, 'Central Ozark Area Admin', '', '', 'cozark-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(20, 2, 'Quincy Area Admin', '', '', 'quincy-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(21, 2, 'Little Egypt Area Admin', '', '', 'egypt-admin', '$1$Scs6TTTu$ic76Aai1hXcNnXIdTejbL1', '1969-12-31 19:00:00', 'en'),
+(22, 5, 'Show Me Region Observer', '', '', 'showme-observer', '$1$VF8g7Mlr$S9TGTWQl7e6pFk4NWbNjA.', '1969-12-31 18:00:00', 'en'),
+(23, 5, 'St. Louis ASC Observer', '', '', 'stl-observer', '$1$.qE9wsAb$FgVda4vzg85JeNa/ozl.51', '1969-12-31 18:00:00', 'en');
 
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `na_comdef_changes`
+--
+ALTER TABLE `na_comdef_changes`
+  ADD PRIMARY KEY (`id_bigint`),
+  ADD KEY `user_id_bigint` (`user_id_bigint`),
+  ADD KEY `service_body_id_bigint` (`service_body_id_bigint`),
+  ADD KEY `lang_enum` (`lang_enum`),
+  ADD KEY `change_type_enum` (`change_type_enum`),
+  ADD KEY `change_date` (`change_date`),
+  ADD KEY `before_id_bigint` (`before_id_bigint`),
+  ADD KEY `after_id_bigint` (`after_id_bigint`),
+  ADD KEY `before_lang_enum` (`before_lang_enum`),
+  ADD KEY `after_lang_enum` (`after_lang_enum`),
+  ADD KEY `object_class_string` (`object_class_string`);
+
+--
+-- Indexes for table `na_comdef_formats`
+--
+ALTER TABLE `na_comdef_formats`
+  ADD KEY `shared_id_bigint` (`shared_id_bigint`),
+  ADD KEY `worldid_mixed` (`worldid_mixed`),
+  ADD KEY `format_type_enum` (`format_type_enum`),
+  ADD KEY `lang_enum` (`lang_enum`),
+  ADD KEY `key_string` (`key_string`);
+
+--
+-- Indexes for table `na_comdef_meetings_data`
+--
+ALTER TABLE `na_comdef_meetings_data`
+  ADD KEY `data_bigint` (`data_bigint`),
+  ADD KEY `data_double` (`data_double`),
+  ADD KEY `meetingid_bigint` (`meetingid_bigint`),
+  ADD KEY `lang_enum` (`lang_enum`),
+  ADD KEY `key` (`key`),
+  ADD KEY `visibility` (`visibility`);
+
+--
+-- Indexes for table `na_comdef_meetings_longdata`
+--
+ALTER TABLE `na_comdef_meetings_longdata`
+  ADD KEY `meetingid_bigint` (`meetingid_bigint`),
+  ADD KEY `lang_enum` (`lang_enum`),
+  ADD KEY `field_prompt` (`field_prompt`),
+  ADD KEY `key` (`key`),
+  ADD KEY `visibility` (`visibility`);
+
+--
+-- Indexes for table `na_comdef_meetings_main`
+--
+ALTER TABLE `na_comdef_meetings_main`
+  ADD PRIMARY KEY (`id_bigint`),
+  ADD KEY `weekday_tinyint` (`weekday_tinyint`),
+  ADD KEY `service_body_bigint` (`service_body_bigint`),
+  ADD KEY `start_time` (`start_time`),
+  ADD KEY `duration_time` (`duration_time`),
+  ADD KEY `formats` (`formats`),
+  ADD KEY `lang_enum` (`lang_enum`),
+  ADD KEY `worldid_mixed` (`worldid_mixed`),
+  ADD KEY `shared_group_id_bigint` (`shared_group_id_bigint`),
+  ADD KEY `longitude` (`longitude`),
+  ADD KEY `latitude` (`latitude`),
+  ADD KEY `published` (`published`),
+  ADD KEY `email_contact` (`email_contact`);
+
+--
+-- Indexes for table `na_comdef_service_bodies`
+--
+ALTER TABLE `na_comdef_service_bodies`
+  ADD PRIMARY KEY (`id_bigint`),
+  ADD KEY `worldid_mixed` (`worldid_mixed`),
+  ADD KEY `kml_file_uri_string` (`kml_file_uri_string`),
+  ADD KEY `principal_user_bigint` (`principal_user_bigint`),
+  ADD KEY `editors_string` (`editors_string`),
+  ADD KEY `lang_enum` (`lang_enum`),
+  ADD KEY `uri_string` (`uri_string`),
+  ADD KEY `sb_type` (`sb_type`),
+  ADD KEY `sb_owner` (`sb_owner`),
+  ADD KEY `sb_owner_2` (`sb_owner_2`),
+  ADD KEY `sb_meeting_email` (`sb_meeting_email`);
+
+--
+-- Indexes for table `na_comdef_users`
+--
+ALTER TABLE `na_comdef_users`
+  ADD PRIMARY KEY (`id_bigint`),
+  ADD UNIQUE KEY `login_string` (`login_string`),
+  ADD KEY `user_level_tinyint` (`user_level_tinyint`),
+  ADD KEY `email_address_string` (`email_address_string`),
+  ADD KEY `last_access_datetime` (`last_access_datetime`),
+  ADD KEY `lang_enum` (`lang_enum`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `na_comdef_changes`
+--
+ALTER TABLE `na_comdef_changes`
+  MODIFY `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
+--
+-- AUTO_INCREMENT for table `na_comdef_meetings_main`
+--
+ALTER TABLE `na_comdef_meetings_main`
+  MODIFY `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
+--
+-- AUTO_INCREMENT for table `na_comdef_service_bodies`
+--
+ALTER TABLE `na_comdef_service_bodies`
+  MODIFY `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=21;
+--
+-- AUTO_INCREMENT for table `na_comdef_users`
+--
+ALTER TABLE `na_comdef_users`
+  MODIFY `id_bigint` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=24;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

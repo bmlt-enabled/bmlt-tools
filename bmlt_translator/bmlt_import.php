@@ -49,6 +49,13 @@
 ini_set ( 'auto_detect_line_endings', 1 );      // Always detect line endings.
 define ( '_DEFAULT_ROOT_DIR_', 'main_server' ); // The default names the main directory "main_server".
 
+global $gOutput_level;
+
+$gOutput_level = 'PROLIX';
+// $gOutput_level = 'VERBOSE';
+//$gOutput_level = 'MEDIUM';
+// $gOutput_level = 'MINIMAL';
+
 global $gDays, $g_main_keys, $g_root_dir, $g_server;
 global $region_bias, $service_body_array;
     
@@ -105,7 +112,9 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                                 $in_lang_enum = 'en'            ///< The language enum for the meetings
                                                 )
     {
-        $ret = null;
+        global $gOutput_level;
+        
+        $ret = NULL;
         $display = "";
         $count = 1;
         $file = '';
@@ -150,12 +159,13 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             $display_buffer = '';
             $keys = null;
             $display_buffer = "<p>Opening $file, which is a ";
+            
             $file_handle = fopen ( $file, "r" );
         
             if ( $file_handle )
                 {
                 $key_conversion_table = bmlt_get_field_conversion_table();
-                $ret = array();        
+                $ret = array ( 'original' => array(), 'converted' => array() );
                 $delimiter = ",";
             
                 $key_line = fgetcsv ( $file_handle, 1000, $delimiter );
@@ -230,13 +240,23 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         $new_data['published'] = 1;
                         }
 
-                    array_push ( $ret, $new_data );
+                    array_push ( $ret['original'], $data );
+                    array_push ( $ret['converted'], $new_data );
                     
-                    $display_buffer .= "<dl><dt>Meeting $count:<dt>".$display.'</dl>';
+                    if ( $gOutput_level == 'PROLIX' )
+                        {
+                        $display_buffer .= "<dl><dt>Meeting $count:<dt>".$display.'</dl>';
+                        }
+                    
                     $count++;
                     }
-                    
-                echo "<h4>$count Meetings read</h4>$display_buffer\n";
+                
+                if ( $gOutput_level != 'MINIMAL' )
+                    {
+                    echo ( "$display_buffer\n" );
+                    }
+                
+                echo ( "<h4>$count Meetings read</h4>\n" );
             
                 fclose ( $file_handle );
                 }
@@ -252,7 +272,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                         )
     {
         $ret = array();
-        echo ( "<tr><td>&nbsp;</td><td colspan=\"2\">Parsed '".$inResult->formatted_address->__toString()."'.</td></tr>" );
+        echo ( "<tr><td>&nbsp;</td><td colspan=\"3\">Parsed '".$inResult->formatted_address->__toString()."'.</td></tr>" );
         $ret['longitude'] = $inResult->geometry->location->lng->__toString();
         $ret['latitude'] = $inResult->geometry->location->lat->__toString();
         
@@ -352,7 +372,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                                             $in_templates_array     ///< This contains the key/value templates for the meeting data.
                                         )
     {
-        $ret = false;
+        $ret = 0;
         
         global $g_server, $g_main_keys;
     
@@ -366,6 +386,11 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         $values_placeholders = array();
         foreach ( $in_meeting_array_main as $key => $value )
             {
+            if ( ($gOutput_level == 'PROLIX') && ($key == 'published') && !intval ( $value ) )
+                {
+                echo ( '<tr><td colspan="3">Meeting '.$in_meeting_array_main['id_bigint'].' is not published</td></tr>' );
+                }
+            
             array_push ( $keys, $key );
             array_push ( $values, $value );
             array_push ( $values_placeholders, '?' );
@@ -383,8 +408,6 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             // If that was successful, we extract the ID for the meeting.
             if ( $result )
                 {
-                $ret = true;
-                
                 $sql = "SELECT LAST_INSERT_ID()";
                 $row2 = c_comdef_dbsingleton::preparedQuery ( $sql, array() );
                 if ( is_array ( $row2 ) && count ( $row2 ) == 1 )
@@ -396,6 +419,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                     die ( "Can't get the meeting ID!" );
                     }
                 
+                $ret = $meeting_id;
                 $in_out_meeting_array['id_bigint'] = $meeting_id;
                 
                 // OK. We have now created the basic meeting info, and we have the ID necessary to create the key/value pairs for the data tables.
@@ -1164,11 +1188,30 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     function bmlt_clean_one_meeting (   $in_one_meeting ///< The meeting, in the source format. An associative array.
                                     )
     {
-        global $service_body_array;
+        global $service_body_array, $gOutput_level;
         
         if ( (isset ( $in_one_meeting['Delete'] ) && $in_one_meeting['Delete']) || (isset ( $in_one_meeting['Institutional'] ) && (strtolower($in_one_meeting['Institutional']) == 'true')) )
             {
             return NULL;
+            }
+        
+        if ( !trim ( $in_one_meeting['Address'] ) && !trim ( $in_one_meeting['City'] ) && !trim ( $in_one_meeting['State'] ) && !trim ( $in_one_meeting['Time'] ) && (!trim ( strval ( $in_one_meeting['latitude'] ) ) || !trim ( strval ( $in_one_meeting['longitude'] ) )) )
+            {
+            if ( $gOutput_level != 'MINIMAL' )
+                {
+                $name = trim ( $in_one_meeting['meeting_name'] );
+                
+                echo ( "<tr><td colspan=\"3\" style=\"background-color:red;color:white;font-weight:bold\">The meeting " );
+                
+                if ( $name )
+                    {
+                    echo ( "'$name' " );
+                    }
+                
+                echo ( "does not have enough information to read, and will be skipped.</td></tr>" );
+                }
+            
+            return null;
             }
         
         $in_one_meeting['Delete'] = NULL;
@@ -1181,7 +1224,25 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             $value = $in_one_meeting['AreaRegion'];
             $in_one_meeting['service_body_bigint'] = intval($service_body_array[$in_one_meeting['AreaRegion']]['id_bigint']);
             $name = $service_body_array[$value]['name_string'];
-            echo ( "<tr><td colspan=\"2\">This meeting is part of the '$name' ($value) Service Body.</td></tr>" );
+            
+            if ( !$name )
+                {
+                echo ( "<tr><td colspan=\"3\" style=\"background-color:red;color:white;font-weight:bold\">This meeting " );
+                $name = trim ( $in_one_meeting['meeting_name'] );
+                
+                if ( $name )
+                    {
+                    echo ( "('$name') " );
+                    }
+                
+                echo ( "is part of a Service body ($value) that is not known to this server, and will be skipped.</td></tr>" );
+                return NULL;
+                }
+            elseif ( $gOutput_level != 'MINIMAL' )
+                {
+                echo ( "<tr><td colspan=\"3\">This meeting is part of the '$name' ($value) Service Body.</td></tr>" );
+                }
+            
             $in_one_meeting['AreaRegion'] = NULL;
             unset ( $in_one_meeting['AreaRegion'] );
             }
@@ -1254,6 +1315,16 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         $in_one_meeting['Format5'] = NULL;
         unset ( $in_one_meeting['Format5'] );
         
+        if ( !intval ( $in_one_meeting['service_body_bigint'] ) )
+            {
+            if ( $gOutput_level != 'MINIMAL' )
+                {
+                echo ( "<tr><td colspan=\"3\">This meeting does not have a Service Body, and will be skipped.</td></tr>" );
+                }
+            
+            $in_one_meeting = null;
+            }
+        
         return $in_one_meeting;
     }
     
@@ -1262,32 +1333,32 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
 
         \returns an associative array, in BMLT-ready format, of the meeting data.
     */
-    function bmlt_convert_one_meeting (  $in_one_meeting,   ///< The meeting, in the source format. An associative array.
-                                         $in_count          ///< The index of this meeting.
+    function bmlt_convert_one_meeting ( $in_original_data,  ///< The original file data for the meeting.
+                                        $in_one_meeting,    ///< The meeting, in the source format. An associative array.
+                                        $in_count           ///< The index of this meeting.
                                         )
     {
-        global $region_bias;
+        global $region_bias, $gOutput_level;
         $ret = null;
 
-        echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;text-align:center\" colspan=\"2\">Converting meeting $in_count</td></tr>" );
+        if ( $gOutput_level != 'MINIMAL' )
+            {
+            echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;text-align:center\" colspan=\"3\">Converting meeting $in_count</td></tr>" );
+            }
         
         // We cycle through all the meeting data, and extract that which can be mapped to BMLT context.
         
-        if ( $in_one_meeting )
+        if ( isset ( $in_one_meeting ) && is_array ( $in_one_meeting ) && count ( $in_one_meeting ) )
             {
             $world_format = false;
         
-            if (    isset ( $in_one_meeting['AreaRegion'] )
-                &&  isset ( $in_one_meeting['WeekdayString'] )
-                &&  isset ( $in_one_meeting['SimpleMilitaryTime'] ) )
+            if ( isset ( $in_one_meeting['AreaRegion'] )  )
                 {
                 $world_format = true;
-                $ret = bmlt_clean_one_meeting ( $in_one_meeting );
+                $in_one_meeting = bmlt_clean_one_meeting ( $in_one_meeting );
                 }
             else
                 {
-                $ret = array();
-                
                 if ( isset ( $in_one_meeting['SimpleMilitaryTime'] ) )
                     {
                     $in_one_meeting['start_time'] = func_start_time_from_simple_military ( $in_one_meeting['SimpleMilitaryTime'] );
@@ -1308,91 +1379,118 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                     {
                     $in_one_meeting['formats'] = bmlt_convert_formats ( $in_one_meeting['FormatsAsString'] );
                     }
-                    
-                $ret = $in_one_meeting;
                 }
-        
-            // See if we need to geocode.
-            if ( !isset ( $in_one_meeting['longitude'] ) ||  !isset ( $in_one_meeting['latitude'] ) )
+            
+            if ( $in_one_meeting )
                 {
-                $address_string = bmlt_build_address ( $in_one_meeting );
-                echo ( "<tr><td colspan=\"2\">This meeting does not have a long/lat, so we are geocoding '$address_string'.</td></tr>\n" );
-    
-                if ( $address_string )
+                $ret = $in_one_meeting;
+                // See if we need to geocode.
+                if ( !isset ( $ret['longitude'] ) || !isset ( $ret['latitude'] ) )
                     {
-                    $region_bias = function_exists ( 'bmlt_get_region_bias' ) ? bmlt_get_region_bias() : NULL;
-        
-                    $geocoded_result = bmlt_geocode ( $address_string );
-                
-                    if ( $geocoded_result )
+                    $address_string = bmlt_build_address ( $ret );
+                    
+                    if ( $address_string )
                         {
-                        if ( isset ( $geocoded_result['result']['partial_geocode'] ) )
+                        if ( $gOutput_level != 'MINIMAL' )
                             {
-                            echo ( "<tr><td colspan=\"2\" style=\"font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS. PLEASE VERIFY THIS LOCATION!</td></tr>\n" );
+                            echo ( "<tr><td colspan=\"3\">This meeting does not have a long/lat, so we are geocoding '$address_string'.</td></tr>\n" );
                             }
-                        $ret['longitude'] = $geocoded_result['result']['longitude'];
-                        $ret['latitude'] = $geocoded_result['result']['latitude'];
+    
+                        $region_bias = function_exists ( 'bmlt_get_region_bias' ) ? bmlt_get_region_bias() : NULL;
+        
+                        $geocoded_result = bmlt_geocode ( $address_string );
                 
-                        if ( array_key_exists ( 'location_postal_code_1', $geocoded_result['result']) )
+                        if ( $geocoded_result )
                             {
-                            $ret['location_postal_code_1'] = $geocoded_result['result']['location_postal_code_1'];
-                            }
+                            if ( isset ( $geocoded_result['result']['partial_geocode'] ) )
+                                {
+                                echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;font-weight:bold;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS FOR MEETING $in_count. PLEASE VERIFY THIS LOCATION!</td></tr>\n" );
+                                }
+                            $ret['longitude'] = $geocoded_result['result']['longitude'];
+                            $ret['latitude'] = $geocoded_result['result']['latitude'];
                 
-                        if ( array_key_exists ( 'location_neighborhood', $geocoded_result['result'] ) )
+                            if ( array_key_exists ( 'location_postal_code_1', $geocoded_result['result']) )
+                                {
+                                $ret['location_postal_code_1'] = $geocoded_result['result']['location_postal_code_1'];
+                                }
+                
+                            if ( array_key_exists ( 'location_neighborhood', $geocoded_result['result'] ) )
+                                {
+                                $ret['location_neighborhood'] = $geocoded_result['result']['location_neighborhood'];
+                                }
+                
+                            if ( array_key_exists ( 'location_sub_province', $geocoded_result['result'] ) )
+                                {
+                                $ret['location_sub_province'] = $geocoded_result['result']['location_sub_province'];
+                                }
+                
+                            if ( array_key_exists ( 'location_province', $geocoded_result['result'] ) )
+                                {
+                                $ret['location_province'] = $geocoded_result['result']['location_province'];
+                                }
+                
+                            if ( array_key_exists ( 'location_nation', $geocoded_result['result'] ) )
+                                {
+                                $ret['location_nation'] = $geocoded_result['result']['location_nation'];
+                                }
+                
+                            usleep ( 500000 );  // This prevents Google from summarily ejecting us as abusers.
+                            }
+                        else
                             {
-                            $ret['location_neighborhood'] = $geocoded_result['result']['location_neighborhood'];
+                            $ret['published'] = 0;
+                            echo ( "<tr><td colspan=\"3\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE FOR MEETING $in_count!</td></tr>\n" );
                             }
-                
-                        if ( array_key_exists ( 'location_sub_province', $geocoded_result['result'] ) )
-                            {
-                            $ret['location_sub_province'] = $geocoded_result['result']['location_sub_province'];
-                            }
-                
-                        if ( array_key_exists ( 'location_province', $geocoded_result['result'] ) )
-                            {
-                            $ret['location_province'] = $geocoded_result['result']['location_province'];
-                            }
-                
-                        if ( array_key_exists ( 'location_nation', $geocoded_result['result'] ) )
-                            {
-                            $ret['location_nation'] = $geocoded_result['result']['location_nation'];
-                            }
-                
-                        usleep ( 500000 );  // This prevents Google from summarily ejecting us as abusers.
                         }
                     else
                         {
-                        echo ( "<tr><td colspan=\"2\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE!</td></tr>\n" );
+                        $ret['published'] = 0;
+                        echo ( "<tr><td colspan=\"3\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE FOR MEETING $in_count! CAN'T CREATE ADDRESS!</td></tr>\n" );
                         }
                     }
-                else
+                elseif ( $gOutput_level != 'MINIMAL' )
                     {
-                    echo ( "<tr><td colspan=\"2\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE!</td></tr>\n" );
+                    echo ( "<tr><td colspan=\"3\">This already has a long/lat. No need to geocode</td></tr>\n" );
+                    }
+        
+                if ( $gOutput_level != 'MINIMAL' )
+                    {
+                    echo ( '<tr>' );
+                    echo ( '<td style="width:34%;border-bottom:2px solid black;font-weight:bold;font-size:large">' );
+                    echo ( 'Input' );
+                    echo ( '</td>' );
+                    echo ( '<td style="width:33%;border-bottom:2px solid black;font-weight:bold;font-size:large">' );
+                    if ( ($gOutput_level == 'PROLIX') || ($gOutput_level == 'VERBOSE') )
+                        {
+                        echo ( 'Converted' );
+                        }
+                    echo ( '</td>' );
+                    echo ( '<td style="width:34%;border-bottom:2px solid black;font-weight:bold;font-size:large">' );
+                    echo ( 'Output' );
+                    echo ( '</td>' );
+                    echo ( "</tr>\n" );
+                    echo ( '<tr>' );
+                    echo ( '<td style="vertical-align:top">' );
+                    echo ( '<pre>'.htmlspecialchars ( print_r ( $in_original_data, true ) ).'</pre>' );
+                    echo ( '</td>' );
+                    echo ( '<td style="vertical-align:top">' );
+                    if ( ($gOutput_level == 'PROLIX') || ($gOutput_level == 'VERBOSE') )
+                        {
+                        echo ( '<pre>'.htmlspecialchars ( print_r ( $in_one_meeting, true ) ).'</pre>' );
+                        }
+                    echo ( '</td>' );
+                    echo ( '<td style="vertical-align:top">' );
+                    echo ( '<pre>'.htmlspecialchars ( print_r ( $ret, true ) ).'</pre>' );
+                    echo ( '</td>' );
+                    echo ( "</tr>\n" );
                     }
                 }
-            else
+            elseif ( $gOutput_level != 'MINIMAL' )
                 {
-                echo ( "<tr><td colspan=\"2\">This already has a long/lat. No need to geocode</td></tr>\n" );
+                echo ( "<tr><td colspan=\"3\">This meeting is deleted, institutional, or too corrupted to convert.</td></tr>\n" );
                 }
             }
-        else
-            {
-            echo ( "<tr><td colspan=\"2\">This meeting is deleted, institutional, or too corrupted to convert.</td></tr>\n" );
-            }
         
-        echo ( '<tr>' );
-        echo ( '<td style="width:50%;text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Input</td>' );
-        echo ( '<td style="width:50%;text-align:center;border-bottom:2px solid black;font-weight:bold;font-size:large">Output</td>' );
-        echo ( "</tr>\n" );
-        echo ( '<tr>' );
-        echo ( '<td style="vertical-align:top">' );
-        echo ( '<pre>'.htmlspecialchars ( print_r ( $in_one_meeting, true ) ).'</pre>' );
-        echo ( '</td>' );
-        echo ( '<td style="vertical-align:top">' );
-        echo ( '<pre>'.htmlspecialchars ( print_r ( $ret, true ) ).'</pre>' );
-        echo ( '</td>' );
-        echo ( "</tr>\n" );
-
         return $ret;
     }
     
@@ -1404,7 +1502,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
 
     $ret = null;
 
-    if ( isset ( $data ) && is_array ( $data ) && count ( $data ) ) // Make sure we got something.
+    if ( isset ( $data ) && is_array ( $data ) && count ( $data ) && is_array ( $data['converted'] ) && count ( $data['converted'] ) ) // Make sure we got something.
         {
         set_time_limit ( count ( $data ) * 2 ); // Set a long time limit for this operation (could take some time).
         $meetings = array();
@@ -1415,18 +1513,28 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             echo ( '<h2>Converting the meetings to BMLT format.</h2>' );
             echo ( '<table cellpadding="0" cellspacing="0" border="0" style="border:none;width:100%">'."\n" );
             $count = 1;
-            foreach ( $data as $meeting )
+            $original = $data['original'];
+            $converted = $data['converted'];
+            
+            for ( $i = 0; $i < count ( $converted ); $i++ )
                 {
-                $cleaned_meeting = bmlt_convert_one_meeting ( $meeting, $count );
+                $cleaned_meeting = bmlt_convert_one_meeting ( $original[$i], $converted[$i], $count );
                 if ( is_array ( $cleaned_meeting ) && count ( $cleaned_meeting ) )
                     {
-                    $ret .= bmlt_add_meeting_to_database ( $cleaned_meeting, $templates )."\n";
+                    $ret = bmlt_add_meeting_to_database ( $cleaned_meeting, $templates )."\n";
+                
+                    if ( $gOutput_level == 'PROLIX' )
+                        {
+                        echo ( "<tr><td colspan=\"3\">".($ret ? "Meeting ID $ret Successfully Stored in DB" : 'Not Stored in DB' )."</td></tr>\n" );
+                        }
                     }
                 else
                     {
-            echo ( "<tr><td colspan=\"2\">Meeting Is Missing!</td></tr>\n" );
+                    if ( $gOutput_level == 'PROLIX' )
+                        {
+                        echo ( "<tr><td colspan=\"3\"><h2>Meeting $count is not valid!</h2></td></tr>\n" );
+                        }
                     }
-                
                 $count++;
                 }
             echo ( "</table>\n" );
