@@ -22,7 +22,7 @@ as general use scripts.
 CHANGELIST
 ----------
 
-***bmlt_translator Version 1.1.0* ** *- TBD*
+***bmlt_translator Version 1.1.0* ** *- May 12, 2016*
 
 - Added support for default decoding of standard NAWS dump.
 - Added 4 levels of report:
