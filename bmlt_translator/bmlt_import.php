@@ -263,6 +263,8 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                     $count++;
                     }
                 
+                $count = max ( 0, $count - 1);
+                
                 if ( $gOutput_level != 'MINIMAL' )
                     {
                     echo ( "$display_buffer\n" );
@@ -924,59 +926,6 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     /***********************************************************************/
     /**
     */
-    function bmlt_translate_format_codes ( $in_codes )
-    {
-        $ret = NULL;
-        
-        global $g_server;
-        
-        $formats_obj = $g_server->GetFormatsObj();
-        
-        $in_codes = explode ( ',', $in_codes );
-        
-        $format_array = bmlt_get_format_conversion_table();
-        
-        foreach ( $in_codes as $in_code )
-            {
-            if ( key_exists ( $in_code, $format_array ) )
-                {
-                $new_format_code = $format_array[$in_code];
-                
-                if ( $new_format_code )
-                    {
-                    if ( !is_array ( $new_format_code ) )
-                        {
-                        $new_format_code = array ( $new_format_code );
-                        }
-                    
-                    foreach ( $new_format_code as $code )
-                        {
-                        $format_obj = $formats_obj->GetFormatByKeyAndLanguage ( $code );
-                    
-                        if ( $format_obj )
-                            {
-                            $new_format_id = $format_obj->GetSharedID();
-                    
-                            if ( $new_format_id )
-                                {
-                                $ret[] = $new_format_id;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-        if ( is_array ( $ret ) && count ( $ret ) )
-            {
-            $ret = implode ( ",", $ret );
-            }
-        return $ret;
-    }
-    
-    /***********************************************************************/
-    /**
-    */
     function microtime_float()
     {
         list($usec, $sec) = explode(" ", microtime());
@@ -1041,7 +990,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             if ( is_array ( $formats ) && count ( $formats ) )
                 {
                 $ret_ar = array();
-                $format_conversion_table = get_format_conversion_table();
+                $format_conversion_table = bmlt_get_format_conversion_table();
             
                 foreach ( $formats as $format )
                     {
@@ -1207,25 +1156,6 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             return NULL;
             }
         
-        if ( !trim ( $in_one_meeting['Address'] ) && !trim ( $in_one_meeting['City'] ) && !trim ( $in_one_meeting['State'] ) && !trim ( $in_one_meeting['Time'] ) && !trim ( $in_one_meeting['WeekdayString'] ) )
-            {
-            if ( $gOutput_level != 'MINIMAL' )
-                {
-                $name = trim ( $in_one_meeting['meeting_name'] );
-                
-                echo ( "<tr><td colspan=\"3\" style=\"background-color:red;color:white;font-weight:bold\">The meeting " );
-                
-                if ( $name )
-                    {
-                    echo ( "'$name' " );
-                    }
-                
-                echo ( "does not have enough information to read, and will be skipped.</td></tr>" );
-                }
-            
-            return null;
-            }
-        
         $in_one_meeting['Delete'] = NULL;
         unset ( $in_one_meeting['Delete'] );
         
@@ -1311,8 +1241,17 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             unset ( $in_one_meeting['RoomInfo'] );
             }
         
-        $in_one_meeting['formats'] = bmlt_determine_formats_from_world ( $in_one_meeting );
+        if ( isset ( $in_one_meeting['FormatsAsString'] ) )
+            {
+            $in_one_meeting['formats'] = bmlt_convert_formats ( $in_one_meeting['FormatsAsString'] );
+            }
+        else
+            {
+            $in_one_meeting['formats'] = bmlt_determine_formats_from_world ( $in_one_meeting );
+            }
         
+        $in_one_meeting['FormatsAsString'] = NULL;
+        unset ( $in_one_meeting['FormatsAsString'] );
         $in_one_meeting['FormatClosedOpen'] = NULL;
         unset ( $in_one_meeting['FormatClosedOpen'] );
         $in_one_meeting['FormatWheelchair'] = NULL;
@@ -1334,14 +1273,47 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         $in_one_meeting['Format5'] = NULL;
         unset ( $in_one_meeting['Format5'] );
         
-        if ( !intval ( $in_one_meeting['service_body_bigint'] ) )
+        if ( ((intval ( $in_one_meeting['weekday_tinyint'] ) ) < 0) || (intval ( $in_one_meeting['weekday_tinyint'] ) > 6) || !isset ( $in_one_meeting['start_time'] ) || !trim ( $in_one_meeting['start_time'] ) )
             {
             if ( $gOutput_level != 'MINIMAL' )
                 {
-                echo ( "<tr><td colspan=\"3\">This meeting does not have a Service Body, and will be skipped.</td></tr>" );
+                $name = isset ( $in_one_meeting['meeting_name'] ) ? trim ( $in_one_meeting['meeting_name'] ) : '';
+                
+                echo ( "<tr><td colspan=\"3\" style=\"background-color:red;color:white;font-weight:bold\">The meeting " );
+                
+                if ( $name )
+                    {
+                    echo ( "'$name' " );
+                    }
+                
+                echo ( "does not have enough information to convert, and will be skipped.</td></tr>" );
                 }
             
             $in_one_meeting = null;
+            }
+        else
+            {
+            $sb = isset ( $in_one_meeting['service_body_bigint'] ) ? intval ( $in_one_meeting['service_body_bigint'] ) : 0;
+            $in_one_meeting['service_body_bigint'] = 0;
+            
+            foreach ( $service_body_array as $service_body )
+                {
+                if ( intval ( $service_body['id_bigint'] ) == $sb )
+                    {
+                    $in_one_meeting['service_body_bigint'] = $sb;
+                    break;
+                    }
+                }
+            
+            if ( !intval ( $in_one_meeting['service_body_bigint'] ) )
+                {
+                if ( $gOutput_level != 'MINIMAL' )
+                    {
+                    echo ( "<tr><td colspan=\"3\" style=\"background-color:red;color:white;font-weight:bold\">This meeting does not belong to a valid Service Body, and will be skipped.</td></tr>" );
+                    }
+            
+                $in_one_meeting = null;
+                }
             }
         
         return $in_one_meeting;
@@ -1369,36 +1341,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         
         if ( isset ( $in_one_meeting ) && is_array ( $in_one_meeting ) && count ( $in_one_meeting ) )
             {
-            $world_format = false;
-        
-            if ( isset ( $in_one_meeting['AreaRegion'] ) && $in_one_meeting['AreaRegion']  )
-                {
-                $world_format = true;
-                $in_one_meeting = bmlt_clean_one_meeting ( $in_one_meeting );
-                }
-            else
-                {
-                if ( isset ( $in_one_meeting['SimpleMilitaryTime'] ) )
-                    {
-                    $in_one_meeting['start_time'] = func_start_time_from_simple_military ( $in_one_meeting['SimpleMilitaryTime'] );
-            
-                    $in_one_meeting['SimpleMilitaryTime'] = NULL;
-                    unset ( $in_one_meeting['SimpleMilitaryTime'] );
-                    }
-                
-                if ( isset ( $in_one_meeting['WeekdayString'] ) )
-                    {
-                    $in_one_meeting['weekday_tinyint'] = func_convert_from_english_full_weekday ( $in_one_meeting['WeekdayString'] );
-
-                    $in_one_meeting['WeekdayString'] = NULL;
-                    unset ( $in_one_meeting['WeekdayString'] );
-                    }
-                
-                if ( isset ( $in_one_meeting['FormatsAsString'] ) )
-                    {
-                    $in_one_meeting['formats'] = bmlt_convert_formats ( $in_one_meeting['FormatsAsString'] );
-                    }
-                }
+            $in_one_meeting = bmlt_clean_one_meeting ( $in_one_meeting );
             
             if ( $in_one_meeting )
                 {
@@ -1589,7 +1532,10 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 
                 $count++;
                 }
+                
+            $count = max ( 0, $count - 1);
             
+            echo ( "<tr><td colspan=\"3\" style=\"border-bottom:2px solid black;margin-bottom:0.25em;margin-top:0.25em\"></td></tr>\n" );
             echo ( "<tr><td colspan=\"3\">".strval ( $count )." meetings were read from the file.</td></tr>\n" );
             
             if ( $count - ($count_published + $count_unpublished) )
