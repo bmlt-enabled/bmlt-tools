@@ -282,11 +282,23 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
     /***********************************************************************/
     /**
     */
-    function bmlt_parse_gecode_result ( $inResult   ///< The geocode SimpleXML-parsed object for the result.
+    function bmlt_parse_gecode_result ( $inResult,      ///< The geocode SimpleXML-parsed object for the result.
+                                        $in_isPublished ///< TRUE, if the meeting is published.
                                         )
     {
         $ret = array();
-        echo ( "<tr><td>&nbsp;</td><td colspan=\"3\">Parsed '".$inResult->formatted_address->__toString()."'.</td></tr>" );
+        global $gOutput_level;
+
+        if ( ($gOutput_level == 'VERBOSE') || ($gOutput_level == 'PROLIX') )
+            {
+            echo ( "<tr><td colspan=\"3\"" );
+            if ( !$in_isPublished )
+                {
+                echo ( "style=\"font-style:italic;font-size:medium;color:blue;background-color:orange\"" );
+                }
+            echo ( ">Parsed '".$inResult->formatted_address->__toString()."'.</td></tr>" );
+            }
+        
         $ret['longitude'] = $inResult->geometry->location->lng->__toString();
         $ret['latitude'] = $inResult->geometry->location->lat->__toString();
         
@@ -342,7 +354,8 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 - 'original'
                     The original address string
     */
-    function bmlt_geocode (	$in_address 	///< The address, in a single string, to be sent to the geocoder.
+    function bmlt_geocode (	$in_address,	///< The address, in a single string, to be sent to the geocoder.
+                            $in_isPublished ///< TRUE, if the meeting is published.
                             )
     {
         global $region_bias;
@@ -361,7 +374,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
             {
             if ( $xml->status == 'OK' )
                 {
-                $ret = array ( 'original' => $in_address, 'result' => bmlt_parse_gecode_result ( $xml->result ) );
+                $ret = array ( 'original' => $in_address, 'result' => bmlt_parse_gecode_result ( $xml->result, $in_isPublished ) );
                 $retry = false;
                 }
             elseif ( $xml->status == 'OVER_QUERY_LIMIT' )
@@ -1332,9 +1345,14 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         global $region_bias, $gOutput_level;
         $ret = null;
 
+
         if ( $gOutput_level != 'MINIMAL' )
             {
             echo ( "<tr><td style=\"color:white;background-color:black;font-weight:bold;padding-left:1em\" colspan=\"3\">Starting Conversion of Meeting #$in_count</td></tr>" );
+            }
+        else
+            {
+            echo ( "<tr><td style=\"border-top:2px solid black\" colspan=\"3\"></td></tr>" );
             }
         
         // We cycle through all the meeting data, and extract that which can be mapped to BMLT context.
@@ -1360,12 +1378,17 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         {
                         if ( $gOutput_level != 'MINIMAL' )
                             {
-                            echo ( "<tr><td colspan=\"3\">This meeting does not have a long/lat, so we are geocoding '$address_string'.</td></tr>\n" );
+                            echo ( "<tr><td colspan=\"3\"" );
+                            if ( !$in_one_meeting['published'] )
+                                {
+                                echo ( "style=\"font-style:italic;font-size:medium;color:blue;background-color:orange\"" );
+                                }
+                            echo ( ">This meeting does not have a long/lat, so we are geocoding '$address_string'.</td></tr>\n" );
                             }
     
                         $region_bias = function_exists ( 'bmlt_get_region_bias' ) ? bmlt_get_region_bias() : NULL;
         
-                        $geocoded_result = bmlt_geocode ( $address_string );
+                        $geocoded_result = bmlt_geocode ( $address_string, ($in_one_meeting['published'] != 0) );
                 
                         if ( $geocoded_result )
                             {
@@ -1374,7 +1397,9 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 
                             if ( isset ( $geocoded_result['result']['partial_geocode'] ) )
                                 {
-                                echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;font-weight:bold;color:blue;background-color:orange;text-align:center\">GEOCODE AMBIGUOUS FOR MEETING $in_count. PLEASE VERIFY THIS LOCATION!</td></tr>\n" );
+                                $ret['published'] = 0;
+                                echo ( "<tr><td colspan=\"3\" style=\"color:blue;font-size:large;font-weight:bold;background-color:orange\">GEOCODE AMBIGUOUS FOR MEETING $in_count!</td></tr>\n" );
+                                echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;color:blue;background-color:orange\">Meeting $in_count will be unpublished. You should edit this meeting, verify that the address information is correct, and possibly correct the longitude and latitude.</td></tr>\n" );
                                 }
                             elseif ( $gOutput_level == 'PROLIX' )
                                 {
@@ -1411,13 +1436,15 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                         else
                             {
                             $ret['published'] = 0;
-                            echo ( "<tr><td colspan=\"3\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE FOR MEETING $in_count! BAD ADDRESS: '$address_string'</td></tr>\n" );
+                            echo ( "<tr><td colspan=\"3\" style=\"color:blue;font-size:large;font-weight:bold;background-color:orange\">GEOCODE FAILURE FOR MEETING $in_count! BAD ADDRESS: '$address_string'</td></tr>\n" );
+                            echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;color:blue;background-color:orange\">Meeting $in_count will be unpublished. You should edit this meeting, correct the address information, and set the longitude and latitude.</td></tr>\n" );
                             }
                         }
                     else
                         {
                         $ret['published'] = 0;
-                        echo ( "<tr><td colspan=\"3\" style=\"color:white;font-size:large;font-weight:bold;background-color:red;text-align:center\">GEOCODE FAILURE FOR MEETING $in_count! CAN'T CREATE ADDRESS!</td></tr>\n" );
+                        echo ( "<tr><td colspan=\"3\" style=\"color:blue;font-size:large;font-weight:bold;background-color:orange\">GEOCODE FAILURE FOR MEETING $in_count! CAN'T CREATE ADDRESS!</td></tr>\n" );
+                        echo ( "<tr><td colspan=\"3\" style=\"font-style:italic;font-size:medium;color:blue;background-color:orange\">Meeting $in_count will be unpublished. You should edit this meeting, add the address information, and set the longitude and latitude.</td></tr>\n" );
                         }
                     }
                 elseif ( ($gOutput_level == 'PROLIX') || ($gOutput_level == 'VERBOSE') )
