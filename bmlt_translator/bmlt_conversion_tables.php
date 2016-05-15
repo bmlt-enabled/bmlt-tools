@@ -6,8 +6,12 @@
 
 	\brief  This is the file that should be adjusted for individual imports.
 	
-	This is an example file that is meant to work with the given input files.
-	You should modify this file for your own conversion.
+	This particular file has been set up to act as a default translation directly from a standard
+	NAWS dump, into a default installation Root Server.
+	
+	Simply rename the CSV file you get from NAWS, install the Root Server, set up the user[s] and
+	the Service bodies (make sure that you give each Service body its NAWS Committee Code).
+	This is discussed further here: http://bmlt.magshare.net/importing-data-from-existing-meeting-lists/
 */
 
 /***********************************************************************/
