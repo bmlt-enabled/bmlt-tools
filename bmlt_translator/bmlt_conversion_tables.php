@@ -2,7 +2,7 @@
 /***********************************************************************/
 /**	\file	bmlt_conversion_tables.php
 
-    \version 1.1.0
+    \version 1.1.1
 
 	\brief  This is the file that should be adjusted for individual imports.
 	
@@ -11,7 +11,7 @@
 	
 	Simply rename the CSV file you get from NAWS, install the Root Server, set up the user[s] and
 	the Service bodies (make sure that you give each Service body its NAWS Committee Code).
-	This is discussed further here: http://bmlt.magshare.net/importing-data-from-existing-meeting-lists/
+	This is discussed further here: http://bmlt.app/importing-data-from-existing-meeting-lists/
 */
 
 /***********************************************************************/
@@ -47,7 +47,7 @@ function bmlt_get_field_conversion_table()
 {
 //                              These are the file values           These are corresponding values in the database
 //                                                                  NOTE: An array means that the given value is a default (for an empty source)
-//                                                                  These are the kays used in the database for the meeting values. If you don't know
+//                                                                  These are the keys used in the database for the meeting values. If you don't know
 //                                                                  what that means, then you probably shouldn't be running this script.
 //                              These are values for a standard NAWS export.
     $conversion_table = array ( // These are straight-ahead translations.
@@ -62,8 +62,8 @@ function bmlt_get_field_conversion_table()
                                 'Country'                   =>      'location_nation',                          /* The street address */
                                 'Zip'                       =>      'location_postal_code_1',                   /* The postcode/zip code */
                                 'Directions'                =>      'location_info',                            /* Extra information about the location (i.e. "Upstairs on the right") */
-                                'longitude'                 =>      'longitude',                                /* Any existing longitude */
-                                'latitude'                  =>      'latitude',                                 /* Any existing latitude */
+                                'Longitude'                 =>      'longitude',                                /* Any existing longitude */
+                                'Latitude'                  =>      'latitude',                                 /* Any existing latitude */
 
                                 // These are not straight-ahead translations. They need to be interpreted.
                                 

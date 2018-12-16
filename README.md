@@ -10,7 +10,7 @@ scheduled weekly, recurring events.
 The intended clientele is Narcotics Anonymous Service bodies. They implement a BMLT
 server, and provide the server to other NA Service bodies.
 
-You can find out way too much about the BMLT here: http://bmlt.magshare.net
+You can find out way too much about the BMLT here: http://bmlt.app
 
 You can follow us on Twitter for release announcements: http://twitter.com/BMLT_NA
 
@@ -21,6 +21,11 @@ as general use scripts.
 
 CHANGELIST
 ----------
+
+***bmlt_translator Version 1.1.1* ** *- December 16, 2018*
+
+- Longitude/Latitude for NAWS dump translation table should be uppercased.
+- Added support for Google API keys to be able to properly geocode.
 
 ***bmlt_translator Version 1.1.0* ** *- May 15, 2016*
 
