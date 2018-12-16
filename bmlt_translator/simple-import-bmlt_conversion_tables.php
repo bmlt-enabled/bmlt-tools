@@ -2,7 +2,7 @@
 /***********************************************************************/
 /**	\file	bmlt_conversion_tables.php
 
-    \version 1.1.0
+    \version 1.1.1
 
 	\brief  This is the file that should be adjusted for individual imports.
 	
