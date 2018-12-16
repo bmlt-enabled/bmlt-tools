@@ -365,8 +365,7 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
         
         $ret = null;
         $status = null;
-        $uri = 'https://maps.googleapis.com/maps/api/geocode/xml?address='.urlencode ( $in_address );
-        $uri .= "&key=" . $gkey;
+        $uri = 'https://maps.googleapis.com/maps/api/geocode/xml?key=' . $gkey . '&address='.urlencode ( $in_address );
         if ( $region_bias )
             {
             $uri .= '&region='.strtolower(trim($region_bias));
