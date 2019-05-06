@@ -24,6 +24,10 @@ CHANGELIST
 
 ***bmlt_translator Version 1.1.1* ** *- December 16, 2018*
 
+- Updated Google API response code messages.
+
+***bmlt_translator Version 1.1.1* ** *- December 16, 2018*
+
 - Longitude/Latitude for NAWS dump translation table should be uppercased.
 - Added support for Google API keys to be able to properly geocode.
 

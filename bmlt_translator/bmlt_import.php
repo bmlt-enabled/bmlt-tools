@@ -2,7 +2,7 @@
 /***********************************************************************/
 /**	\file	bmlt_import.php
 
-    \version 1.1.1
+    \version 1.1.2
 
 	\brief  This file contains a range of functions to be used by BMLT database importing scripts. Including this file instantiates a BMLT root server.
 	
@@ -380,11 +380,15 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 $ret = array ( 'original' => $in_address, 'result' => bmlt_parse_gecode_result ( $xml->result, $in_isPublished ) );
                 $retry = false;
                 }
-            elseif ( $xml->status == 'OVER_QUERY_LIMIT' )
+            elseif ( ( $xml->status == 'OVER_QUERY_LIMIT' ) || ($xml->status == 'OVER_DAILY_LIMIT') )
                 {
                 die ( 'Over Google Maps API Query Limit' );
                 }
-            elseif ( ($xml->status == 'REQUEST_DENIED') || ($xml->status == 'INVALID_REQUEST') )
+            elseif ($xml->status == 'REQUEST_DENIED')
+                {
+                die ( 'Problem with API Key ('.htmlspecialchars ( $uri ).')' );
+                }
+            elseif ($xml->status == 'INVALID_REQUEST')
                 {
                 die ( 'Invalid Geocode URL ('.htmlspecialchars ( $uri ).')' );
                 }
