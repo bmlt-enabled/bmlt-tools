@@ -382,15 +382,15 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                 }
             elseif ( ( $xml->status == 'OVER_QUERY_LIMIT' ) || ($xml->status == 'OVER_DAILY_LIMIT') )
                 {
-                die ( 'Over Google Maps API Query Limit' );
+                die ( 'Over Google Maps API Query Limit' . ".   " . $xml->error_message );
                 }
             elseif ($xml->status == 'REQUEST_DENIED')
                 {
-                die ( 'Problem with API Key ('.htmlspecialchars ( $uri ).')' );
+                die ( 'Problem with API Key ('.htmlspecialchars ( $uri ).')' . ".   " . $xml->error_message );
                 }
             elseif ($xml->status == 'INVALID_REQUEST')
                 {
-                die ( 'Invalid Geocode URL ('.htmlspecialchars ( $uri ).')' );
+                die ( 'Invalid Geocode URL ('.htmlspecialchars ( $uri ).')' . ".   " . $xml->error_message );
                 }
             }
         return $ret;
