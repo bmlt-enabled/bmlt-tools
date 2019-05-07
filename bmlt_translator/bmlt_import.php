@@ -32,8 +32,9 @@
 	This file is dangerous, and can mess up your database if not done correctly!
 	It's qute possible that you will have to make several runs, as you tweak stuff, so BACK UP YOUR DATABASE!
 */
+ini_set('max_execution_time', 600); // This could take awhile
 // Your Google API key needs to be set here to be able to geocode properly.
-$gkey = "";
+$gkey = '';
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -362,10 +363,9 @@ if ( isset ( $g_root_dir ) && $g_root_dir && file_exists ( "$g_root_dir/server/c
                             )
     {
         global $region_bias;
-        
         $ret = null;
         $status = null;
-        $uri = 'https://maps.googleapis.com/maps/api/geocode/xml?key=' . $gkey . '&address='.urlencode ( $in_address );
+        $uri = 'https://maps.googleapis.com/maps/api/geocode/xml?key=' . $GLOBALS['gkey'] . '&address='.urlencode ( $in_address );
         if ( $region_bias )
             {
             $uri .= '&region='.strtolower(trim($region_bias));
